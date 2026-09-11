@@ -1,13 +1,22 @@
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { SignupForm } from "@/src/components/auth/SignupForm";
+import { PublicAuthLayout } from "@/src/components/auth/PublicAuthLayout";
 
-// Provides a temporary route target while the signup experience is built.
+// Renders Poste's public signup page using the shared reference-inspired auth frame.
 export default function SignupPage() {
   return (
-    <main className="auth-placeholder section-shell">
-      <p className="mono-label">Create your workspace</p>
-      <h1>Signup is the next public page.</h1>
-      <p>The landing page is ready. We will build the signup experience next.</p>
-      <Button href="/">Return home</Button>
-    </main>
+    <PublicAuthLayout
+      cardClassName="auth-signup-card"
+      headingId="signup-heading"
+      visualCaption="Plan your ideas, keep your rhythm, and grow with more intention."
+    >
+      <div className="auth-card-head">
+        <p className="mono-label">Create your workspace</p>
+        <h1 id="signup-heading">Join Poste</h1>
+        <p>Start free and bring your social workflow into focus.</p>
+      </div>
+      <SignupForm />
+      <p className="auth-switch">Already have an account? <Link href="/login">Sign in</Link></p>
+    </PublicAuthLayout>
   );
 }

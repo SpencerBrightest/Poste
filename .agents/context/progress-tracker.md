@@ -18,6 +18,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Login page prompt built and structured (numbered steps + example output format).
 - Landing page implemented in the Next.js App Router using the supplied Organic Social Flow reference: collage hero, capability strip, lifecycle cards, bento product story, audience outcomes, why-Poste panel, gradient CTA, footer, and dark/light theme toggle.
 - Landing page refinement pass completed: shared shadcn-style Button primitive, OpenCode-inspired restrained CTA treatment, balanced page gutters, tighter hero position, and larger footer typography.
+- Login, Signup, Forgot Password, and Reset Password pages implemented with a shared reference-inspired split auth frame, responsive network illustration, theme toggle, local validation, password visibility controls, optional referral code, and honest pre-API submission states; backend account creation, login, and recovery remain intentionally pending.
 - Theme switcher (next-themes) planned, scoped first to the Login page as a pilot before rolling out to all pages.
 - AGENTS.md-style rules drafted: code commenting rules, branch cleanup workflow, and skills for Campay payments, MongoDB/Prisma schema conventions, JWT auth flow, shadcn form pattern, Meta Graph API fetching, and Next.js code review.
 - Shared Poste design system added with the Organic Social Flow palette, typography, responsive layout, component guidance, Lucide icon rule, and protected generated-UI paths.
