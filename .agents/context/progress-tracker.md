@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Frontend scaffolding and initial public pages (pre-backend integration)
+- Clerk authentication integration and protected app routing
 
 ## Current Goal
 
-- Build out the public (no-auth) pages: Login, Signup, Landing — using shadcn/ui, dark/light theming, and mock data. Backend (Prisma schema, auth API, Campay integration) to follow once frontend pages are reviewed.
+- Complete the Clerk-based sign-in/sign-up flow, protect the workspace routes, and keep the authentication shell consistent with Poste's existing design system.
 
 ## Completed
 
@@ -19,6 +19,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Landing page implemented in the Next.js App Router using the supplied Organic Social Flow reference: collage hero, capability strip, lifecycle cards, bento product story, audience outcomes, why-Poste panel, gradient CTA, footer, and dark/light theme toggle.
 - Landing page refinement pass completed: shared shadcn-style Button primitive, OpenCode-inspired restrained CTA treatment, balanced page gutters, tighter hero position, and larger footer typography.
 - Login, Signup, Forgot Password, and Reset Password pages implemented with a shared reference-inspired split auth frame, responsive network illustration, theme toggle, local validation, password visibility controls, optional referral code, and honest pre-API submission states; backend account creation, login, and recovery remain intentionally pending.
+- Clerk authentication workflow implemented: dark theme provider with Poste CSS variable overrides, canonical `/sign-in` and `/sign-up` catch-all pages, root `proxy.ts` protection, authenticated `/editor` entry point with `UserButton`, root authentication redirect, and legacy auth URL redirects.
 - Theme switcher (next-themes) planned, scoped first to the Login page as a pilot before rolling out to all pages.
 - AGENTS.md-style rules drafted: code commenting rules, branch cleanup workflow, and skills for Campay payments, MongoDB/Prisma schema conventions, JWT auth flow, shadcn form pattern, Meta Graph API fetching, and Next.js code review.
 - Shared Poste design system added with the Organic Social Flow palette, typography, responsive layout, component guidance, Lucide icon rule, and protected generated-UI paths.
@@ -26,11 +27,13 @@ Update this file whenever the current phase, active feature, or implementation s
 ## In Progress
 
 - Landing page implementation is complete; the dark/light theme system is now established there for reuse on the auth pages.
+- Clerk integration is implemented and build-validated; the remaining auth work is connecting Clerk's dashboard configuration and verifying the hosted sign-in/sign-up flows with the project's deployment environment.
 - Deciding final stack details between the original Express/MongoDB version and the newer Next.js/TypeScript/PostgreSQL/Prisma version (current direction: Next.js/TypeScript/PostgreSQL/Prisma).
 
 ## Next Up
 
-- Build the Login page, then Signup, Forgot Password, and Reset Password using the landing page's public layout and theme patterns.
+- Build the first protected editor features behind the completed Clerk boundary.
+- Verify Clerk redirect URLs and enabled authentication strategies in the Clerk dashboard for each deployment environment.
 - Define the Prisma schema (User, Post, SocialAccount, Referral, Transaction) once the frontend pages are settled.
 - Implement JWT-based auth API routes (signup, login, password reset) and the auth middleware.
 - Build the Campay payment integration (initiate + webhook) against the Prisma/Postgres data model.

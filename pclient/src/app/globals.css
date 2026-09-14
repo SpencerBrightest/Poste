@@ -189,3 +189,43 @@ img { display: block; }
   .auth-network-illustration { width: min(100%, 285px); margin: 8px auto 0; }.auth-network-node { width: 57px; height: 57px; }.auth-network-node svg { width: 24px; height: 24px; }.auth-visual-caption { display: none; }
   .auth-form-canvas { min-height: calc(100vh - 270px); align-items: flex-start; padding: 76px 16px 42px; }.auth-canvas-toolbar { top: 20px; right: 16px; left: 16px; }.auth-card, .auth-signup-card { width: 100%; padding: 29px 20px 25px; border-radius: 15px; }.auth-card-head h1 { font-size: 28px; }
 }
+
+/* Clerk authentication shell and protected workspace entry point. */
+.clerk-auth-shell { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); min-height: 100vh; background: var(--canvas); color: var(--text); }
+.clerk-auth-aside { display: flex; min-height: 100vh; flex-direction: column; padding: 34px clamp(28px, 7vw, 104px) 42px; border-right: 1px solid var(--border); background: var(--canvas-raised); }
+.clerk-auth-brand, .editor-brand { display: inline-flex; width: fit-content; align-items: center; gap: 9px; color: var(--text); font-size: 19px; font-weight: 700; letter-spacing: -0.04em; }
+.clerk-auth-brand .brand-mark, .editor-brand .brand-mark { background: var(--primary); color: var(--button-primary-fg); }
+.clerk-auth-aside-copy { max-width: 490px; margin: auto 0; padding: 72px 0 56px; }
+.clerk-auth-aside-copy .mono-label { margin: 0 0 18px; color: var(--primary-bright); }
+.clerk-auth-aside-copy h1 { max-width: 510px; margin: 0; color: var(--text); font-size: clamp(38px, 4.2vw, 65px); font-weight: 700; letter-spacing: -0.07em; line-height: 1.02; }
+.clerk-auth-aside-copy > p:not(.mono-label) { max-width: 390px; margin: 24px 0 0; color: var(--text-soft); font-size: 14px; line-height: 1.7; }
+.clerk-auth-features { display: grid; gap: 13px; margin: 38px 0 0; padding: 0; color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; list-style: none; }
+.clerk-auth-features li { display: flex; align-items: center; gap: 10px; }
+.clerk-auth-features li::before { width: 18px; height: 1px; background: var(--primary-bright); content: ""; }
+.clerk-auth-main { position: relative; display: flex; min-height: 100vh; align-items: center; justify-content: center; padding: 96px clamp(20px, 5vw, 70px) 48px; background: var(--canvas); }
+.clerk-auth-toolbar { position: absolute; top: 30px; right: clamp(20px, 5vw, 70px); left: clamp(20px, 5vw, 70px); display: flex; align-items: center; justify-content: flex-end; gap: 16px; }
+.clerk-auth-home-link { color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; }
+.clerk-auth-home-link:hover { color: var(--primary-bright); }
+.clerk-auth-form-wrap { width: min(100%, 430px); }
+.clerk-auth-form-wrap .cl-card { border-color: var(--border); background: var(--surface); box-shadow: var(--shadow-two); }
+.clerk-auth-form-wrap .cl-footer { background: transparent; }
+
+.editor-page { min-height: 100vh; background: var(--canvas); color: var(--text); }
+.editor-navbar { display: flex; min-height: 74px; align-items: center; justify-content: space-between; gap: 20px; padding: 0 clamp(20px, 5vw, 70px); border-bottom: 1px solid var(--border); background: var(--canvas-raised); }
+.editor-navbar-actions { display: flex; align-items: center; gap: 22px; }
+.editor-nav-link { color: var(--text-muted); font-family: var(--font-mono); font-size: 10px; }
+.editor-nav-link:hover { color: var(--text); }
+.editor-empty-state { width: min(100% - 40px, 680px); margin: 0 auto; padding: 18vh 0; }
+.editor-empty-state .mono-label { margin: 0 0 15px; color: var(--primary-bright); }
+.editor-empty-state h1 { margin: 0; font-size: clamp(40px, 6vw, 72px); letter-spacing: -0.07em; line-height: 1; }
+.editor-empty-state p:last-child { max-width: 410px; margin: 23px 0 0; color: var(--text-soft); font-size: 14px; line-height: 1.7; }
+
+@media (max-width: 760px) {
+  .clerk-auth-shell { display: block; }
+  .clerk-auth-aside { display: none; }
+  .clerk-auth-main { min-height: 100vh; padding: 88px 16px 36px; }
+  .clerk-auth-toolbar { top: 20px; right: 16px; left: 16px; }
+  .clerk-auth-form-wrap { width: min(100%, 430px); }
+  .editor-navbar { min-height: 66px; padding: 0 16px; }
+  .editor-empty-state { width: min(100% - 32px, 680px); padding: 15vh 0; }
+}

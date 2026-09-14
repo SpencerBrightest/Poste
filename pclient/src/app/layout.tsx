@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/ui/themes";
 
 import "./globals.css";
 
@@ -17,7 +19,28 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ClerkProvider
+          appearance={{
+            theme: dark,
+            variables: {
+              colorPrimary: "var(--primary-bright)",
+              colorPrimaryForeground: "var(--button-primary-fg)",
+              colorBackground: "var(--surface)",
+              colorForeground: "var(--text)",
+              colorInput: "var(--surface-soft)",
+              colorInputForeground: "var(--text)",
+              colorBorder: "var(--border-strong)",
+              colorRing: "var(--primary-bright)",
+              colorDanger: "var(--coral)",
+              colorSuccess: "var(--secondary)",
+              colorNeutral: "var(--text-muted)",
+            },
+          }}
+        >
+          {children}
+        </ClerkProvider>
+      </body>
     </html>
   );
 }

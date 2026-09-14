@@ -36,8 +36,8 @@ export function Navbar() {
 
           <div className="nav-actions">
             <ThemeToggle />
-            <Link className="nav-login" href="/login">Sign in</Link>
-            <Button href="/signup" size="small">
+            <Link className="nav-login" href="/sign-in">Sign in</Link>
+            <Button href="/sign-up" size="small">
               Start free <ArrowUpRight size={15} strokeWidth={1.8} />
             </Button>
           </div>

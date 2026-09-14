@@ -61,7 +61,7 @@ export function CtaBanner() {
         </motion.p>
         <motion.div className="cta-actions" variants={fadeInUp}>
           <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button href="/signup" variant="light">
+          <Button href="/sign-up" variant="light">
               Get started for free <ArrowUpRight size={15} />
             </Button>
           </motion.div>
@@ -78,4 +78,3 @@ export function CtaBanner() {
     </motion.section>
   );
 }
-

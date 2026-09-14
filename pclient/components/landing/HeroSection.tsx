@@ -32,7 +32,7 @@ export function HeroSection() {
             <Mail size={18} strokeWidth={1.8} />
             <span>Ready to build a calmer content rhythm?</span>
           </div>
-          <Button href="/signup">Start free <ArrowRight size={16} strokeWidth={1.8} /></Button>
+          <Button href="/sign-up">Start free <ArrowRight size={16} strokeWidth={1.8} /></Button>
         </motion.div>
         <motion.div className="hero-proof" variants={fadeInUp}>
           <span><CheckCircle2 size={14} strokeWidth={2} /> Free plan available</span>
@@ -43,4 +43,3 @@ export function HeroSection() {
     </section>
   );
 }
-
