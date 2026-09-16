@@ -4,7 +4,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Clerk authentication integration and protected app routing
+- Protected editor dashboard foundation
 
 ## Current Goal
 
@@ -23,16 +23,18 @@ Update this file whenever the current phase, active feature, or implementation s
 - Theme switcher (next-themes) planned, scoped first to the Login page as a pilot before rolling out to all pages.
 - AGENTS.md-style rules drafted: code commenting rules, branch cleanup workflow, and skills for Campay payments, MongoDB/Prisma schema conventions, JWT auth flow, shadcn form pattern, Meta Graph API fetching, and Next.js code review.
 - Shared Poste design system added with the Organic Social Flow palette, typography, responsive layout, component guidance, Lucide icon rule, and protected generated-UI paths.
+- Protected editor dashboard implemented with Clerk server-side auth, signed-in profile data, responsive navigation, audience analytics cards, scheduling actions, and interactive local filters.
 
 ## In Progress
 
 - Landing page implementation is complete; the public route now composes the reusable landing components directly instead of embedding invalid document-level HTML and CDN scripts in `src/app/page.tsx`.
-- Clerk integration is implemented and build-validated; the remaining auth work is connecting Clerk's dashboard configuration and verifying the hosted sign-in/sign-up flows with the project's deployment environment.
+- Clerk integration and the first protected editor dashboard are implemented and build-validated; the remaining auth work is connecting Clerk's dashboard configuration and verifying the hosted sign-in/sign-up flows with the project's deployment environment.
 - Deciding final stack details between the original Express/MongoDB version and the newer Next.js/TypeScript/PostgreSQL/Prisma version (current direction: Next.js/TypeScript/PostgreSQL/Prisma).
 
 ## Next Up
 
-- Build the first protected editor features behind the completed Clerk boundary.
+- Connect dashboard cards to persisted post, social account, and engagement data instead of the current presentation fixtures.
+- Build the post scheduler interactions behind the completed Clerk boundary.
 - Verify Clerk redirect URLs and enabled authentication strategies in the Clerk dashboard for each deployment environment.
 - Define the Prisma schema (User, Post, SocialAccount, Referral, Transaction) once the frontend pages are settled.
 - Implement JWT-based auth API routes (signup, login, password reset) and the auth middleware.

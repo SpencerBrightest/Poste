@@ -2,17 +2,15 @@
 
 // Renders the interactive editor analytics workspace.
 import { useState } from "react";
+import Image from "next/image";
 import {
-  BarChart3,
   Bell,
   Calendar,
   ChevronDown,
-  ChevronLeft,
   ChevronRight,
   CircleHelp,
   FileText,
-  Grid2X2,
-  Instagram,
+  AtSign,
   LayoutDashboard,
   Link2,
   Menu,
@@ -20,10 +18,10 @@ import {
   MoreHorizontal,
   Plus,
   Search,
+  Send,
   Settings,
   Sparkles,
   TrendingUp,
-  Twitter,
   Users,
   X,
 } from "lucide-react";
@@ -39,13 +37,13 @@ interface PlatformMetric {
   value: string;
   delta: string;
   color: string;
-  icon: typeof Instagram;
+  icon: typeof AtSign;
 }
 
 const platformMetrics: PlatformMetric[] = [
   { name: "Facebook", value: "2,500", delta: "+4.8%", color: "#3b82f6", icon: Users },
-  { name: "Twitter", value: "2,500", delta: "+2.1%", color: "#38bdf8", icon: Twitter },
-  { name: "Instagram", value: "2,500", delta: "+7.4%", color: "#e879a9", icon: Instagram },
+  { name: "Twitter", value: "2,500", delta: "+2.1%", color: "#38bdf8", icon: Send },
+  { name: "Instagram", value: "2,500", delta: "+7.4%", color: "#e879a9", icon: AtSign },
 ];
 
 const chartPoints = [
@@ -114,8 +112,8 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
           <div className="sidebar-section-heading"><span>Your Accounts</span><ChevronDown size={14} /></div>
           <div className="account-list">
             <button type="button"><span className="account-dot facebook-dot">f</span>Facebook</button>
-            <button type="button"><Twitter size={14} />Twitter</button>
-            <button type="button"><Instagram size={14} />Instagram</button>
+            <button type="button"><Send size={14} />Twitter</button>
+            <button type="button"><AtSign size={14} />Instagram</button>
           </div>
         </div>
         <div className="sidebar-footer-nav">
@@ -134,12 +132,8 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
           <div className="dashboard-top-actions">
             <button className="dashboard-icon-button" type="button" aria-label="Messages"><MessageCircle size={16} /></button>
             <button className="dashboard-icon-button" type="button" aria-label="Notifications"><Bell size={16} /></button>
-            <div className="dashboard-profile">
-              {imageUrl ? <img src={imageUrl} alt="" /> : <span>{displayName[0]}</span>}
-              <div><strong>{displayName}</strong><small>@{displayName.toLowerCase()}</small></div>
-              <ChevronDown size={13} />
-            </div>
-            <UserButton afterSignOutUrl="/" />
+            
+            <UserButton />
           </div>
         </header>
 
