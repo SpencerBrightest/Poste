@@ -55,7 +55,7 @@ export function TestimonialsSection() {
           >
             <Quote className="h-6 w-6 text-indigo-600 mb-4" />
             <p className="text-slate-700 dark:text-slate-300 mb-6 leading-relaxed">
-              "{testimonial.quote}"
+              &quot;{testimonial.quote}&quot;
             </p>
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white dark:text-white text-sm font-semibold">

@@ -26,7 +26,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## In Progress
 
-- Landing page implementation is complete; the dark/light theme system is now established there for reuse on the auth pages.
+- Landing page implementation is complete; the public route now composes the reusable landing components directly instead of embedding invalid document-level HTML and CDN scripts in `src/app/page.tsx`.
 - Clerk integration is implemented and build-validated; the remaining auth work is connecting Clerk's dashboard configuration and verifying the hosted sign-in/sign-up flows with the project's deployment environment.
 - Deciding final stack details between the original Express/MongoDB version and the newer Next.js/TypeScript/PostgreSQL/Prisma version (current direction: Next.js/TypeScript/PostgreSQL/Prisma).
 
