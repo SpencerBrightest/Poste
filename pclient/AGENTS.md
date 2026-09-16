@@ -1,9 +1,5 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Poste frontend agent instructions
 
-# This is NOT the Next.js you know
+Before making frontend changes, read the shared instructions in `../.agents/context/AGENTS.md` and its referenced context files, especially `../.agents/context/design-system.md`.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
-
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+The shared design system is the source of truth for colors, typography, spacing, responsive behavior, elevation, shapes, and component styling. Do not edit `components/ui/*`, generated UI components, or any path matching `component/generate/ui*` unless the user explicitly requests it. Use app-level components for project-specific UI and `lucide-react` for interface icons.
