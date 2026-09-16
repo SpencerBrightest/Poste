@@ -24,6 +24,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - AGENTS.md-style rules drafted: code commenting rules, branch cleanup workflow, and skills for Campay payments, MongoDB/Prisma schema conventions, JWT auth flow, shadcn form pattern, Meta Graph API fetching, and Next.js code review.
 - Shared Poste design system added with the Organic Social Flow palette, typography, responsive layout, component guidance, Lucide icon rule, and protected generated-UI paths.
 - Protected editor dashboard implemented with Clerk server-side auth, signed-in profile data, responsive navigation, audience analytics cards, scheduling actions, and interactive local filters.
+- Protected editor content studio implemented with live platform previews, formatting, emoji/link insertion, media upload, draft/publish scheduling actions, and responsive layout.
+- Dedicated protected editor workspaces implemented for scheduling, analytics, AI advisor, referrals, billing, settings, sponsorship, mails, and collaboration, with shared search, tabs, metrics, activity, and action controls.
 
 ## In Progress
 
@@ -33,7 +35,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Connect dashboard cards to persisted post, social account, and engagement data instead of the current presentation fixtures.
+- Connect dashboard cards and editor workspaces to persisted post, social account, and engagement data instead of the current presentation fixtures.
 - Build the post scheduler interactions behind the completed Clerk boundary.
 - Verify Clerk redirect URLs and enabled authentication strategies in the Clerk dashboard for each deployment environment.
 - Define the Prisma schema (User, Post, SocialAccount, Referral, Transaction) once the frontend pages are settled.

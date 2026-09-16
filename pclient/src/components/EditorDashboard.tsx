@@ -23,6 +23,7 @@ import {
   Sparkles,
   TrendingUp,
   Users,
+  Wallet as WalletIcon,
   X,
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
@@ -61,7 +62,10 @@ const navItems = [
   { label: "Dashboard", href: "/editor", icon: LayoutDashboard },
   { label: "Post Schedule", href: "/editor/post-schedule", icon: Calendar },
   { label: "Analytics", href: "/editor/analytics", icon: TrendingUp },
+  { label: "AI Advisor", href: "/editor/advisor", icon: Sparkles },
   { label: "Editor", href: "/editor/new-post", icon: FileText },
+  { label: "Referrals", href: "/editor/referrals", icon: Users },
+  { label: "Billing", href: "/editor/billing", icon: WalletIcon },
   { label: "Sponsorship", href: "/editor/sponsorship", icon: Link2, badge: "New" },
   { label: "Mails", href: "/editor/mails", icon: MessageCircle, badge: "9+" },
   { label: "Collaboration", href: "/editor/collaboration", icon: Users },
@@ -111,10 +115,10 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
     <div className="dashboard-shell">
       <aside className={`dashboard-sidebar ${sidebarOpen ? "is-open" : ""}`}>
         <div className="dashboard-brand-row">
-          <a className="dashboard-brand" href="/editor" aria-label="Poste dashboard">
+          <Link className="dashboard-brand" href="/editor" aria-label="Poste dashboard">
             <span className="dashboard-logo"><Sparkles size={15} /></span>
             <span>SocialNest</span>
-          </a>
+          </Link>
           <button className="dashboard-icon-button sidebar-close" type="button" onClick={() => setSidebarOpen(false)} aria-label="Close menu">
             <X size={17} />
           </button>
@@ -140,7 +144,7 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
           </div>
         </div>
         <div className="sidebar-footer-nav">
-          <button type="button" onClick={() => showNotice("Settings workspace is ready") }><Settings size={15} />Settings</button>
+          <Link className="sidebar-footer-link" href="/editor/settings"><Settings size={15} />Settings</Link>
           <button type="button" onClick={() => showNotice("Support center opened") }><CircleHelp size={15} />Help Support</button>
           <button className="logout-link" type="button" onClick={() => void signOut({ redirectUrl: "/" })}>Log out</button>
         </div>
@@ -157,6 +161,7 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
             <button className="dashboard-icon-button" type="button" onClick={() => { toggleMenu("notifications"); }} aria-label="Notifications"><Bell size={16} /></button>
             {menuOpen === "messages" && <div className="dashboard-popover">No new messages</div>}
             {menuOpen === "notifications" && <div className="dashboard-popover">Everything is up to date</div>}
+            <span className="dashboard-avatar" style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined} aria-label={`${displayName} profile`} />
             <UserButton />
           </div>
         </header>
