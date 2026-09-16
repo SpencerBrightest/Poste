@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
-import EditorSectionPage from "@/src/components/EditorSectionPage";
+import EditorWorkspace from "@/src/components/EditorWorkspace";
 
 const sections = {
   "post-schedule": { title: "Post Schedule", description: "Plan and manage everything you want to publish.", icon: "calendar" as const },
@@ -27,5 +27,5 @@ export default async function EditorSectionRoute({ params }: EditorSectionRouteP
   const sectionConfig = sections[section as keyof typeof sections];
   if (!sectionConfig) notFound();
 
-  return <EditorSectionPage {...sectionConfig} />;
+  return <EditorWorkspace {...sectionConfig} />;
 }
