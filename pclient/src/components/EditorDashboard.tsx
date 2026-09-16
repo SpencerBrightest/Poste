@@ -2,7 +2,7 @@
 
 // Renders the interactive editor analytics workspace.
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Bell,
   Calendar,
@@ -58,13 +58,13 @@ const chartPoints = [
 ];
 
 const navItems = [
-  { label: "Dashboard", icon: LayoutDashboard },
-  { label: "Post Schedule", icon: Calendar },
-  { label: "Analytics", icon: TrendingUp },
-  { label: "Editor", icon: FileText },
-  { label: "Sponsorship", icon: Link2, badge: "New" },
-  { label: "Mails", icon: MessageCircle, badge: "9+" },
-  { label: "Collaboration", icon: Users },
+  { label: "Dashboard", href: "/editor", icon: LayoutDashboard },
+  { label: "Post Schedule", href: "/editor/post-schedule", icon: Calendar },
+  { label: "Analytics", href: "/editor/analytics", icon: TrendingUp },
+  { label: "Editor", href: "/editor/new-post", icon: FileText },
+  { label: "Sponsorship", href: "/editor/sponsorship", icon: Link2, badge: "New" },
+  { label: "Mails", href: "/editor/mails", icon: MessageCircle, badge: "9+" },
+  { label: "Collaboration", href: "/editor/collaboration", icon: Users },
 ];
 
 // Builds the SVG path for one audience trend line.
@@ -81,8 +81,7 @@ function makePath(key: "facebook" | "twitter" | "instagram") {
 // Provides a responsive dashboard view with local filters and navigation state.
 export default function EditorDashboard({ firstName, imageUrl }: EditorDashboardProps) {
   const { signOut } = useClerk();
-  const router = useRouter();
-  const [activeNav, setActiveNav] = useState("Dashboard");
+  const activeNav = "Dashboard";
   const [range, setRange] = useState("Monthly");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -123,12 +122,12 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
         <div className="sidebar-section">
           <button className="sidebar-section-heading" type="button" onClick={() => setMenuCollapsed((collapsed) => !collapsed)}><span>Menu</span><ChevronDown className={menuCollapsed ? "is-rotated" : ""} size={14} /></button>
           <nav className={`dashboard-nav ${menuCollapsed ? "is-collapsed" : ""}`} aria-label="Editor navigation">
-            {navItems.map(({ label, icon: Icon, badge }) => (
-              <button className={`dashboard-nav-item ${activeNav === label ? "is-active" : ""}`} key={label} type="button" onClick={() => { setActiveNav(label); setSidebarOpen(false); if (label === "Editor") { router.push("/editor/new-post"); return; } showNotice(`${label} selected`); }}>
+            {navItems.map(({ label, href, icon: Icon, badge }) => (
+              <Link className={`dashboard-nav-item ${activeNav === label ? "is-active" : ""}`} href={href} key={label} onClick={() => setSidebarOpen(false)}>
                 <Icon size={15} />
                 <span>{label}</span>
                 {badge && <small>{badge}</small>}
-              </button>
+              </Link>
             ))}
           </nav>
         </div>
@@ -158,7 +157,6 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
             <button className="dashboard-icon-button" type="button" onClick={() => { toggleMenu("notifications"); }} aria-label="Notifications"><Bell size={16} /></button>
             {menuOpen === "messages" && <div className="dashboard-popover">No new messages</div>}
             {menuOpen === "notifications" && <div className="dashboard-popover">Everything is up to date</div>}
-            <span className="dashboard-avatar" style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined} aria-label={`${firstName} profile`} />
             <UserButton />
           </div>
         </header>
