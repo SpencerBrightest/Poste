@@ -2,7 +2,7 @@
 
 // Renders the interactive editor analytics workspace.
 import { useState } from "react";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   Calendar,
@@ -81,6 +81,7 @@ function makePath(key: "facebook" | "twitter" | "instagram") {
 // Provides a responsive dashboard view with local filters and navigation state.
 export default function EditorDashboard({ firstName, imageUrl }: EditorDashboardProps) {
   const { signOut } = useClerk();
+  const router = useRouter();
   const [activeNav, setActiveNav] = useState("Dashboard");
   const [range, setRange] = useState("Monthly");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -123,7 +124,7 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
           <button className="sidebar-section-heading" type="button" onClick={() => setMenuCollapsed((collapsed) => !collapsed)}><span>Menu</span><ChevronDown className={menuCollapsed ? "is-rotated" : ""} size={14} /></button>
           <nav className={`dashboard-nav ${menuCollapsed ? "is-collapsed" : ""}`} aria-label="Editor navigation">
             {navItems.map(({ label, icon: Icon, badge }) => (
-              <button className={`dashboard-nav-item ${activeNav === label ? "is-active" : ""}`} key={label} type="button" onClick={() => { setActiveNav(label); setSidebarOpen(false); showNotice(`${label} selected`); }}>
+              <button className={`dashboard-nav-item ${activeNav === label ? "is-active" : ""}`} key={label} type="button" onClick={() => { setActiveNav(label); setSidebarOpen(false); if (label === "Editor") { router.push("/editor/new-post"); return; } showNotice(`${label} selected`); }}>
                 <Icon size={15} />
                 <span>{label}</span>
                 {badge && <small>{badge}</small>}
@@ -157,7 +158,7 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
             <button className="dashboard-icon-button" type="button" onClick={() => { toggleMenu("notifications"); }} aria-label="Notifications"><Bell size={16} /></button>
             {menuOpen === "messages" && <div className="dashboard-popover">No new messages</div>}
             {menuOpen === "notifications" && <div className="dashboard-popover">Everything is up to date</div>}
-            
+            <span className="dashboard-avatar" style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined} aria-label={`${firstName} profile`} />
             <UserButton />
           </div>
         </header>
