@@ -13,7 +13,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 /**
  * Create a Stripe checkout session for subscription upgrade
  */
-export async function createCheckoutSession(formData: FormData) {
+export async function createCheckoutSession(plan: "PRO" | "BUSINESS") {
   try {
     const { userId } = await auth();
     if (!userId) {
@@ -21,43 +21,34 @@ export async function createCheckoutSession(formData: FormData) {
     }
 
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organization) {
       throw new ValidationError("No organization found");
     }
 
-    const plan = formData.get("plan") as string;
-    const plans = {
-      PRO: {
-        priceId: process.env.STRIPE_PRO_PRICE_ID,
-        name: "Pro",
-      },
-      BUSINESS: {
-        priceId: process.env.STRIPE_BUSINESS_PRICE_ID,
-        name: "Business",
-      },
-    };
+    const priceId = plan === "PRO" 
+      ? process.env.STRIPE_PRO_PRICE_ID 
+      : process.env.STRIPE_BUSINESS_PRICE_ID;
 
-    const selectedPlan = plans[plan as keyof typeof plans];
-    if (!selectedPlan || !selectedPlan.priceId) {
-      throw new ValidationError("Invalid plan");
+    if (!priceId) {
+      throw new ValidationError("Price ID not configured");
     }
 
     // Create or get Stripe customer
-    let customerId = organization.organization.stripeCustomerId;
+    let customerId = organization.stripeCustomerId;
 
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
         metadata: {
-          organizationId: organization.organization.id,
+          organizationId: organization.id,
         },
       });
       customerId = customer.id;
 
       await prisma.organization.update({
-        where: { id: organization.organization.id },
+        where: { id: organization.id },
         data: { stripeCustomerId: customerId },
       });
     }
@@ -69,19 +60,19 @@ export async function createCheckoutSession(formData: FormData) {
       payment_method_types: ["card"],
       line_items: [
         {
-          price: selectedPlan.priceId,
+          price: priceId,
           quantity: 1,
         },
       ],
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/editor/billing?success=true`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/editor/billing?canceled=true`,
       metadata: {
-        organizationId: organization.organization.id,
-        plan: selectedPlan.name,
+        organizationId: organization.id,
+        plan: plan,
       },
     });
 
-    logger.info("Checkout session created", { organizationId: organization.organization.id, plan: selectedPlan.name });
+    logger.info("Checkout session created", { organizationId: organization.id, plan });
 
     return { success: true, checkoutUrl: session.url };
   } catch (error) {
@@ -103,19 +94,18 @@ export async function createBillingPortalSession() {
       throw new ValidationError("Unauthorized");
     }
 
-    const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization || !organization.organization.stripeCustomerId) {
+    if (!organization || !organization.stripeCustomerId) {
       throw new ValidationError("No Stripe customer found");
     }
 
     const session = await stripe.billingPortal.sessions.create({
-      customer: organization.organization.stripeCustomerId,
+      customer: organization.stripeCustomerId,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/editor/billing`,
     });
 
-    logger.info("Billing portal session created", { organizationId: organization.organization.id });
+    logger.info("Billing portal session created", { organizationId: organization.id });
 
     return { success: true, portalUrl: session.url };
   } catch (error) {
@@ -213,15 +203,14 @@ export async function getSubscription() {
       throw new ValidationError("Unauthorized");
     }
 
-    const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organization) {
       return { success: false, error: "No organization found", subscription: null };
     }
 
     const subscription = await prisma.subscription.findFirst({
-      where: { organizationId: organization.organization.id },
+      where: { organizationId: organization.id },
     });
 
     return { success: true, subscription };

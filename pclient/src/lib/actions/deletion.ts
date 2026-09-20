@@ -18,15 +18,15 @@ export async function requestAccountDeletion() {
     }
 
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organization) {
       throw new ValidationError("No organization found");
     }
 
     // Mark organization for deletion (soft delete)
     await prisma.organization.update({
-      where: { id: organization.organization.id },
+      where: { id: organization.id },
       data: {
         deletionRequestedAt: new Date(),
         deletionScheduledFor: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
@@ -36,11 +36,11 @@ export async function requestAccountDeletion() {
     // Enqueue background job for deletion
     await inngest.send({
       name: "deletion/process",
-      data: { organizationId: organization.organization.id },
+      data: { organizationId: organization.id },
       scheduledFor: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     });
 
-    logger.info("Account deletion requested", { organizationId: organization.organization.id });
+    logger.info("Account deletion requested", { organizationId: organization.id });
 
     return { success: true, message: "Account deletion scheduled for 7 days from now" };
   } catch (error) {
@@ -63,21 +63,21 @@ export async function cancelAccountDeletion() {
     }
 
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organization) {
       throw new ValidationError("No organization found");
     }
 
     await prisma.organization.update({
-      where: { id: organization.organization.id },
+      where: { id: organization.id },
       data: {
         deletionRequestedAt: null,
         deletionScheduledFor: null,
       },
     });
 
-    logger.info("Account deletion canceled", { organizationId: organization.organization.id });
+    logger.info("Account deletion canceled", { organizationId: organization.id });
 
     return { success: true, message: "Account deletion canceled" };
   } catch (error) {
@@ -181,17 +181,17 @@ export async function getDeletionStatus() {
     }
 
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organization) {
       return { success: false, error: "No organization found", status: null };
     }
 
     return {
       success: true,
       status: {
-        deletionRequestedAt: organization.organization.deletionRequestedAt,
-        deletionScheduledFor: organization.organization.deletionScheduledFor,
+        deletionRequestedAt: organization.deletionRequestedAt,
+        deletionScheduledFor: organization.deletionScheduledFor,
       },
     };
   } catch (error) {

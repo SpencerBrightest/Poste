@@ -116,7 +116,7 @@ export async function updateOrganization(formData: FormData) {
 
     // Update organization
     const updatedOrg = await prisma.organization.update({
-      where: { id: organization.organization.id },
+      where: { id: organization.id },
       data: {
         ...(name && { name }),
       },

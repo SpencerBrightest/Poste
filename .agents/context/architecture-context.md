@@ -59,3 +59,12 @@
 3. Public vs protected route status must match the defined page list — no protected page renders without a valid session check.
 4. Social platform data is stored as timestamped snapshots, not overwritten, to preserve historical trend data.
 5. Admin-only actions and data views are gated by role check, not just hidden in the UI.
+
+## Active Architecture Decisions
+
+- `pclient` is the production system of record; `pserver` is deprecated.
+- Clerk organization membership is authoritative for identity and organization access. The application does not implement a parallel password or JWT system.
+- X/Twitter is the first social provider for OAuth, publishing, and analytics; provider interfaces remain platform-neutral.
+- Every organization-owned query includes an `organizationId` predicate, including background jobs.
+- Provider webhooks and background jobs are idempotent under duplicate delivery.
+- Cloudinary is selected for Content Studio media uploads because uploads are now in scope.

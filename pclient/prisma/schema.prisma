@@ -276,7 +276,6 @@ model PostAnalytics {
   @@index([platform])
   @@index([syncedAt])
   @@index([nextSyncAt])
-  @@index([syncedAt])
 }
 
 model Subscription {

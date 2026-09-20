@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { logger } from "@/lib/logger";
+import { SocialPlatform } from "@prisma/client";
 
 /**
  * Prevent duplicate scheduled posts for the same time
@@ -33,7 +34,7 @@ export async function preventDuplicateScheduledPost(
  */
 export async function preventDuplicateSocialAccount(
   organizationId: string,
-  platform: string,
+  platform: SocialPlatform,
   platformAccountId: string
 ) {
   const existing = await prisma.socialAccount.findFirst({
@@ -58,7 +59,7 @@ export async function preventDuplicateSocialAccount(
  * Lock mechanism for critical operations
  */
 export class OperationLock {
-  private static locks = new Map<string, Promise<void>>();
+  private static locks = new Map<string, Promise<unknown>>();
 
   static async acquire<T>(
     key: string,
@@ -70,7 +71,7 @@ export class OperationLock {
       // Wait for existing lock to resolve or timeout
       await Promise.race([
         existingLock,
-        new Promise((_, reject) =>
+        new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error("Lock timeout")), timeout)
         ),
       ]);
@@ -87,36 +88,4 @@ export class OperationLock {
     this.locks.set(key, lockPromise);
     return lockPromise;
   }
-}
-
-/**
- * Idempotent operation helper
- */
-export async function withIdempotency<T>(
-  idempotencyKey: string,
-  operation: () => Promise<T>
-): Promise<T> {
-  // Check if operation was already performed
-  const existing = await prisma.idempotencyKey.findUnique({
-    where: { key: idempotencyKey },
-  });
-
-  if (existing) {
-    logger.info("Idempotent operation already performed", { idempotencyKey });
-    return existing.result as T;
-  }
-
-  // Perform operation
-  const result = await operation();
-
-  // Store result
-  await prisma.idempotencyKey.create({
-    data: {
-      key: idempotencyKey,
-      result: result as any,
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-    },
-  });
-
-  return result;
 }

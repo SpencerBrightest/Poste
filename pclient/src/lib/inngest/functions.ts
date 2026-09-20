@@ -1,7 +1,7 @@
 import { inngest } from "./client";
 import prisma from "@/lib/prisma";
 import { twitterProvider } from "@/lib/social/twitter";
-import { PostStatus } from "@prisma/client";
+import { PostStatus, SocialPlatform } from "@prisma/client";
 import { logger } from "@/lib/logger";
 
 export const publishScheduledPost = inngest.createFunction(

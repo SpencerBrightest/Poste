@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Protected editor dashboard foundation
+- Phase 0: Architecture decision record
 
 ## Current Goal
 
-- Complete the Clerk-based sign-in/sign-up flow, protect the workspace routes, and keep the authentication shell consistent with Poste's existing design system.
+- Establish the implementation contract for the Prisma model, providers, routes, authorization, jobs, and tests before backend feature work begins.
 
 ## Completed
 
@@ -27,12 +27,13 @@ Update this file whenever the current phase, active feature, or implementation s
 - Protected editor content studio implemented with live platform previews, formatting, emoji/link insertion, media upload, draft/publish scheduling actions, and responsive layout.
 - Dedicated protected editor workspaces implemented for scheduling, analytics, AI advisor, referrals, billing, settings, sponsorship, mails, and collaboration, with shared search, tabs, metrics, activity, and action controls.
 - Workspace navigation and content-studio internal links use client-side routes, while each destination now has its own interaction model instead of a shared generic section page.
+- Phase 0 architecture decision record added: `pclient` is the system of record, Clerk organization membership is authoritative, X/Twitter is the MVP social provider, provider contracts are explicit, and jobs/tests have defined contracts.
 
 ## In Progress
 
 - Landing page implementation is complete; the public route now composes the reusable landing components directly instead of embedding invalid document-level HTML and CDN scripts in `src/app/page.tsx`.
 - Clerk integration and the first protected editor dashboard are implemented and build-validated; the remaining auth work is connecting Clerk's dashboard configuration and verifying the hosted sign-in/sign-up flows with the project's deployment environment.
-- Deciding final stack details between the original Express/MongoDB version and the newer Next.js/TypeScript/PostgreSQL/Prisma version (current direction: Next.js/TypeScript/PostgreSQL/Prisma).
+- Phase 0 is complete; Phase 1 foundation is next.
 
 ## Next Up
 

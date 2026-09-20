@@ -17,18 +17,17 @@ import { preventDuplicateScheduledPost } from "@/lib/security/concurrency";
 export async function createPost(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+
+    if (!organization) {
+      throw new ValidationError("No organization found");
+    }
 
     // Validate input
-    const data = createPostSchema.parse({
-      content: formData.get("content"),
-      hashtags: formData.get("hashtags") ? JSON.parse(formData.get("hashtags") as string) : [],
-      cta: formData.get("cta") || undefined,
-      targetPlatform: formData.get("targetPlatform"),
-    });
+    const data = createPostSchema.parse(Object.fromEntries(formData));
 
     // Check quota
-    await checkSubscriptionQuota("aiGenerations");
+    await checkSubscriptionQuota("scheduledPosts");
 
     // Create post
     const post = await prisma.post.create({

@@ -24,31 +24,31 @@ export async function getAnalyticsData() {
 
     // Get post counts
     const totalPosts = await prisma.post.count({
-      where: { organizationId: organization.organization.id },
+      where: { organizationId: organization.id },
     });
 
     const publishedPosts = await prisma.post.count({
       where: {
-        organizationId: organization.organization.id,
+        organizationId: organization.id,
         status: PostStatus.PUBLISHED,
       },
     });
 
     const scheduledPosts = await prisma.post.count({
       where: {
-        organizationId: organization.organization.id,
+        organizationId: organization.id,
         status: PostStatus.SCHEDULED,
       },
     });
 
     // Get social accounts count
     const connectedAccounts = await prisma.socialAccount.count({
-      where: { organizationId: organization.organization.id },
+      where: { organizationId: organization.id },
     });
 
     // Get recent analytics from PostAnalytics
     const recentAnalytics = await prisma.postAnalytics.findMany({
-      where: { organizationId: organization.organization.id },
+      where: { organizationId: organization.id },
       orderBy: { syncedAt: "desc" },
       take: 30,
     });
@@ -64,11 +64,11 @@ export async function getAnalyticsData() {
     // Get posts by platform
     const postsByPlatform = await prisma.post.groupBy({
       by: ["targetPlatform"],
-      where: { organizationId: organization.organization.id },
+      where: { organizationId: organization.id },
       _count: true,
     });
 
-    logger.info("Analytics data fetched", { organizationId: organization.organization.id });
+    logger.info("Analytics data fetched", { organizationId: organization.id });
 
     const data = {
       totalPosts,
