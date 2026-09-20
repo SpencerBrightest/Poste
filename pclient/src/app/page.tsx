@@ -1,32 +1,52 @@
-import { BentoFeatures } from "@/components/landing/BentoFeatures";
-import { CtaBanner } from "@/components/landing/CtaBanner";
-import { Footer } from "@/components/landing/Footer";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { LifecycleSection } from "@/components/landing/LifecycleSection";
-import { Navbar } from "@/components/landing/Navbar";
-import { ProofSection } from "@/components/landing/ProofSection";
-import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
-import { TrustStrip } from "@/components/landing/TrustStrip";
-import { WhySwitchSection } from "@/components/landing/WhySwitchSection";
-import LogoCloud from "@/components/landing/LogoCloud";
+import Link from "next/link";
 
-// Renders the public landing page from the reusable Poste marketing sections.
+// Renders the public landing page
 export default function LandingPage() {
   return (
     <div className="landing-page">
-      <Navbar />
-      <main>
-        <HeroSection />
-        <TrustStrip />
-        <LifecycleSection />
-        <BentoFeatures />
-        <LogoCloud />
-        <TestimonialsSection />
-        <ProofSection />
-        <WhySwitchSection />
-        <CtaBanner />
+      <nav className="landing-nav">
+        <div className="landing-brand">
+          <span>Poste</span>
+        </div>
+        <div className="landing-nav-links">
+          <Link href="/sign-in">Sign In</Link>
+          <Link href="/sign-up" className="landing-cta">Get Started</Link>
+        </div>
+      </nav>
+      <main className="landing-main">
+        <section className="landing-hero">
+          <h1>AI-Powered Social Media Management</h1>
+          <p>Create, schedule, and analyze your social media content with the power of AI</p>
+          <div className="landing-hero-actions">
+            <Link href="/sign-up" className="landing-button primary">Start Free</Link>
+            <Link href="/sign-in" className="landing-button secondary">Sign In</Link>
+          </div>
+        </section>
+        <section className="landing-features">
+          <h2>Features</h2>
+          <div className="landing-feature-grid">
+            <div className="landing-feature-card">
+              <h3>AI Content Generation</h3>
+              <p>Generate engaging content with Google Gemini AI</p>
+            </div>
+            <div className="landing-feature-card">
+              <h3>Multi-Platform Support</h3>
+              <p>Connect and publish to Twitter/X and more</p>
+            </div>
+            <div className="landing-feature-card">
+              <h3>Scheduling</h3>
+              <p>Schedule posts for automatic publishing</p>
+            </div>
+            <div className="landing-feature-card">
+              <h3>Analytics</h3>
+              <p>Track performance with AI-powered insights</p>
+            </div>
+          </div>
+        </section>
       </main>
-      <Footer />
+      <footer className="landing-footer">
+        <p>&copy; 2026 Poste. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

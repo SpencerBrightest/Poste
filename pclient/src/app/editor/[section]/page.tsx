@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { notFound, redirect } from "next/navigation";
-import EditorWorkspace from "@/src/components/EditorWorkspace";
+import EditorWorkspace from "@/components/EditorWorkspace";
 
 const sections = {
   "post-schedule": { title: "Post Schedule", description: "Plan and manage everything you want to publish.", icon: "calendar" as const },

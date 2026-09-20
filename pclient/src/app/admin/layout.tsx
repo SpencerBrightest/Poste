@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
+import Link from "next/link";
 
 export default async function AdminLayout({
   children,
@@ -26,10 +27,10 @@ export default async function AdminLayout({
     <div className="admin-layout">
       <div className="admin-sidebar">
         <nav>
-          <a href="/admin">Overview</a>
-          <a href="/admin/users">Users</a>
-          <a href="/admin/subscriptions">Subscriptions</a>
-          <a href="/admin/jobs">Failed Jobs</a>
+          <Link href="/admin">Overview</Link>
+          <Link href="/admin/users">Users</Link>
+          <Link href="/admin/subscriptions">Subscriptions</Link>
+          <Link href="/admin/jobs">Failed Jobs</Link>
         </nav>
       </div>
       <div className="admin-main">

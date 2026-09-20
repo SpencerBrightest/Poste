@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser, getOrganization } from "@/lib/permissions";
 import { getAnalyticsData } from "@/lib/actions/analytics";
+import Link from "next/link";
 
 export default async function DashboardPage() {
   const { userId } = await auth();
@@ -59,12 +60,12 @@ export default async function DashboardPage() {
         </div>
       </div>
       <div className="dashboard-actions">
-        <a href="/editor/new-post" className="action-button primary">
+        <Link href="/editor/new-post" className="action-button primary">
           Create New Post
-        </a>
-        <a href="/editor/post-schedule" className="action-button secondary">
+        </Link>
+        <Link href="/editor/post-schedule" className="action-button secondary">
           View Schedule
-        </a>
+        </Link>
       </div>
       {/* Recent activity will be implemented in Phase 3 */}
       <div className="recent-activity">

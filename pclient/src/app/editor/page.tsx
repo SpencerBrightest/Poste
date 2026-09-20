@@ -1,6 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import EditorDashboard from "@/src/components/EditorDashboard";
+import EditorDashboard from "@/components/EditorDashboard";
 
 // Protects the editor page at render time and provides the signed-in profile.
 export default async function EditorPage() {

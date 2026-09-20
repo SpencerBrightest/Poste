@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 export default async function DashboardLayout({
   children,
@@ -17,13 +18,13 @@ export default async function DashboardLayout({
       <div className="dashboard-sidebar">
         {/* Sidebar will be implemented in Phase 3 */}
         <nav>
-          <a href="/dashboard">Dashboard</a>
-          <a href="/dashboard/content">Content Studio</a>
-          <a href="/dashboard/calendar">Calendar</a>
-          <a href="/dashboard/analytics">Analytics</a>
-          <a href="/dashboard/social">Social Accounts</a>
-          <a href="/dashboard/billing">Billing</a>
-          <a href="/dashboard/settings">Settings</a>
+          <Link href="/dashboard">Dashboard</Link>
+          <Link href="/dashboard/content">Content Studio</Link>
+          <Link href="/dashboard/calendar">Calendar</Link>
+          <Link href="/dashboard/analytics">Analytics</Link>
+          <Link href="/dashboard/social">Social Accounts</Link>
+          <Link href="/dashboard/billing">Billing</Link>
+          <Link href="/dashboard/settings">Settings</Link>
         </nav>
       </div>
       <div className="dashboard-main">

@@ -1,6 +1,6 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import ContentStudio from "@/src/components/ContentStudio";
+import ContentStudio from "@/components/ContentStudio";
 
 // Protects the content studio and provides the signed-in profile to its preview.
 export default async function NewPostPage() {
