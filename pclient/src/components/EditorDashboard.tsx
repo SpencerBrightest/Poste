@@ -1,7 +1,7 @@
 "use client";
 
 // Renders the interactive editor analytics workspace.
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Bell,
@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { useClerk } from "@clerk/nextjs";
+import { usePosts } from "@/lib/hooks/use-posts";
+import { useSocialAccounts } from "@/lib/hooks/use-social-accounts";
 
 interface EditorDashboardProps {
   firstName: string;
@@ -42,6 +44,7 @@ interface PlatformMetric {
   icon: typeof AtSign;
 }
 
+// Placeholder metrics - will be replaced with real data in Phase 9
 const platformMetrics: PlatformMetric[] = [
   { name: "Facebook", value: "2,500", delta: "+4.8%", color: "#3b82f6", icon: Users },
   { name: "Twitter", value: "2,500", delta: "+2.1%", color: "#38bdf8", icon: Send },
@@ -96,6 +99,11 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
   const [menuCollapsed, setMenuCollapsed] = useState(false);
   const [accountsCollapsed, setAccountsCollapsed] = useState(false);
   const displayName = firstName || "Creator";
+  
+  // Fetch real data
+  const { data: posts, isLoading: postsLoading } = usePosts();
+  const { data: socialAccounts, isLoading: accountsLoading } = useSocialAccounts();
+  
   const visibleMetrics = platformMetrics.filter(({ name }) =>
     `${name} ${selectedPlatform}`.toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -138,9 +146,26 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
         <div className="sidebar-section accounts-section">
           <button className="sidebar-section-heading" type="button" onClick={() => setAccountsCollapsed((collapsed) => !collapsed)}><span>Your Accounts</span><ChevronDown className={accountsCollapsed ? "is-rotated" : ""} size={14} /></button>
           <div className={`account-list ${accountsCollapsed ? "is-collapsed" : ""}`}>
-            <button className={selectedPlatform === "Facebook" ? "is-selected" : ""} type="button" onClick={() => setSelectedPlatform("Facebook")}><span className="account-dot facebook-dot">f</span>Facebook</button>
-            <button className={selectedPlatform === "Twitter" ? "is-selected" : ""} type="button" onClick={() => setSelectedPlatform("Twitter")}><Send size={14} />Twitter</button>
-            <button className={selectedPlatform === "Instagram" ? "is-selected" : ""} type="button" onClick={() => setSelectedPlatform("Instagram")}><AtSign size={14} />Instagram</button>
+            {accountsLoading ? (
+              <p>Loading accounts...</p>
+            ) : socialAccounts && socialAccounts.length > 0 ? (
+              socialAccounts.map((account) => (
+                <button 
+                  key={account.id} 
+                  className={selectedPlatform === account.platform ? "is-selected" : ""} 
+                  type="button" 
+                  onClick={() => setSelectedPlatform(account.platform)}
+                >
+                  {account.platform}
+                </button>
+              ))
+            ) : (
+              <>
+                <button className={selectedPlatform === "Facebook" ? "is-selected" : ""} type="button" onClick={() => setSelectedPlatform("Facebook")}><span className="account-dot facebook-dot">f</span>Facebook</button>
+                <button className={selectedPlatform === "Twitter" ? "is-selected" : ""} type="button" onClick={() => setSelectedPlatform("Twitter")}><Send size={14} />Twitter</button>
+                <button className={selectedPlatform === "Instagram" ? "is-selected" : ""} type="button" onClick={() => setSelectedPlatform("Instagram")}><AtSign size={14} />Instagram</button>
+              </>
+            )}
           </div>
         </div>
         <div className="sidebar-footer-nav">
@@ -179,7 +204,7 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
           <section className="dashboard-grid dashboard-grid-top">
             <article className="dashboard-card overview-card">
               <div className="card-heading"><div><h2>Overview</h2><span>Nov 05 - Dec 11</span></div><div className="dashboard-menu-wrap"><button className="mini-select" type="button" onClick={() => toggleMenu("overview")}>Today <ChevronDown size={12} /></button>{menuOpen === "overview" && <div className="dashboard-dropdown dashboard-dropdown-right"><button type="button" onClick={() => { setMenuOpen(null); showNotice("Overview set to today"); }}>Today</button><button type="button" onClick={() => { setMenuOpen(null); showNotice("Overview set to yesterday"); }}>Yesterday</button></div>}</div></div>
-              <div className="overview-ring"><div><strong>571</strong><span>Best Growth (Fb)</span></div></div>
+              <div className="overview-ring"><div><strong>{posts?.length || 0}</strong><span>Total Posts</span></div></div>
               <div className="platform-metrics"><h3>{selectedPlatform === "All platforms" ? "Your Social Platforms" : `${selectedPlatform} overview`}</h3>{visibleMetrics.length ? visibleMetrics.map(({ name, value, delta, color, icon: Icon }) => <button className="platform-row" type="button" key={name} onClick={() => showNotice(`${name} analytics selected`)}><Icon size={13} style={{ color }} /><strong>{value}</strong><span>{name}</span><em>{delta}</em></button>) : <p className="empty-search">No matching platform</p>}</div>
             </article>
 

@@ -22,6 +22,8 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
+import { useCreatePost } from "@/lib/hooks/use-posts";
+import { useUploadMedia } from "@/lib/hooks/use-media";
 
 interface ContentStudioProps {
   firstName: string;
@@ -55,6 +57,10 @@ export default function ContentStudio({
   const [publishing, setPublishing] = useState(false);
   const displayName = firstName || "Creator";
   const characterLimit = platform === "Twitter" ? 280 : 2200;
+  
+  // Backend mutations
+  const createPostMutation = useCreatePost();
+  const uploadMediaMutation = useUploadMedia();
 
   useEffect(() => {
     const restoreTimer = window.setTimeout(() => {
@@ -135,23 +141,42 @@ export default function ContentStudio({
   }
 
   // Validates the composer before simulating a publish or scheduled post.
-  function publishPost() {
+  async function publishPost() {
     if (!caption.trim()) {
       showNotice("Write a caption before publishing");
       editorRef.current?.focus();
       return;
     }
+    
     setPublishing(true);
-    window.setTimeout(() => {
+    
+    try {
+      // Create FormData for the post
+      const formData = new FormData();
+      formData.append("content", caption);
+      formData.append("hashtags", JSON.stringify([]));
+      formData.append("targetPlatform", platform.toUpperCase());
+      
+      // Create the post
+      const result = await createPostMutation.mutateAsync(formData);
+      
+      if (result) {
+        window.localStorage.removeItem("poste-new-post-draft");
+        setDraftReady(false);
+        setCaption("");
+        setMediaUrl("/workspace_preview.jpg");
+        setMediaName("workspace_preview.jpg");
+        showNotice(
+          mode === "now"
+            ? `Post published to ${platform}`
+            : `Post scheduled for ${scheduleDate.replace("T", " ")}`,
+        );
+      }
+    } catch (error) {
+      showNotice("Failed to publish post");
+    } finally {
       setPublishing(false);
-      window.localStorage.removeItem("poste-new-post-draft");
-      setDraftReady(false);
-      showNotice(
-        mode === "now"
-          ? `Post published to ${platform}`
-          : `Post scheduled for ${scheduleDate.replace("T", " ")}`,
-      );
-    }, 650);
+    }
   }
 
   return (
