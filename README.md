@@ -353,10 +353,8 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for production deployment instructions includ
 - Background job deployment
 - Security checklist
 
-## License
 
-[Your License Here]
 
 ## Support
 
-For support, email support@poste.com or open an issue in the repository.
+For support, open an issue in the repository.
