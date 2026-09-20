@@ -2,6 +2,7 @@
 
 import { ArrowRight, CheckCircle2, Mail, PlayCircle, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
@@ -36,7 +37,7 @@ export function HeroSection() {
         </motion.div>
         <motion.div className="hero-proof" variants={fadeInUp}>
           <span><CheckCircle2 size={14} strokeWidth={2} /> Free plan available</span>
-          <a href="#workflow"><PlayCircle size={14} strokeWidth={1.8} /> See how it works</a>
+          <Link href="#workflow"><PlayCircle size={14} strokeWidth={1.8} /> See how it works</Link>
         </motion.div>
       </motion.div>
       <DashboardPreview />

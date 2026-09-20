@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { UserRole } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { UnauthorizedError, ForbiddenError, NotFoundError } from "@/lib/errors";
@@ -13,14 +13,35 @@ export async function getCurrentUser() {
     throw new UnauthorizedError();
   }
 
-  const user = await prisma.user.findUnique({
+  const existingUser = await prisma.user.findUnique({
     where: { clerkUserId: session.userId },
     include: { organization: true },
   });
 
-  if (!user) {
-    throw new UnauthorizedError("User not found in database");
+  if (existingUser) {
+    return existingUser;
   }
+
+  const clerk = await clerkClient();
+  const clerkUser = await clerk.users.getUser(session.userId);
+  const email = clerkUser.emailAddresses.find(
+    (address) => address.id === clerkUser.primaryEmailAddressId
+  )?.emailAddress ?? clerkUser.emailAddresses[0]?.emailAddress;
+
+  if (!email) {
+    throw new UnauthorizedError("Clerk user has no email address");
+  }
+
+  const user = await prisma.user.upsert({
+    where: { clerkUserId: session.userId },
+    update: { email },
+    create: {
+      clerkUserId: session.userId,
+      email,
+      role: UserRole.USER,
+    },
+    include: { organization: true },
+  });
 
   return user;
 }

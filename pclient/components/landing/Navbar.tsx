@@ -27,29 +27,29 @@ export function Navbar() {
           </Link>
 
           <nav className="desktop-nav" aria-label="Main navigation">
-            <a href="#publishing">Publishing</a>
-            <a href="#analytics">Analytics</a>
-            <a href="#engagement">AI advisor</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#resources">Resources</a>
+            <Link href="#publishing">Publishing</Link>
+            <Link href="#analytics">Analytics</Link>
+            <Link href="#engagement">AI advisor</Link>
+            <Link href="#pricing">Pricing</Link>
+            <Link href="#resources">Resources</Link>
           </nav>
 
           <div className="nav-actions">
             <ThemeToggle />
             <Link className="nav-login" href="/sign-in">Sign in</Link>
-            <Button href="/sign-up" size="small">
+            <Link href="/sign-up" className="button button--secondary" aria-label="Sign up for Poste">
               Start free <ArrowUpRight size={15} strokeWidth={1.8} />
-            </Button>
+            </Link>
           </div>
 
           <details className="mobile-nav">
             <summary aria-label="Open navigation menu"><Menu size={18} strokeWidth={1.8} /></summary>
             <div className="mobile-nav-panel">
-              <a href="#publishing">Publishing</a>
-              <a href="#analytics">Analytics</a>
-              <a href="#engagement">AI advisor</a>
-              <a href="#pricing">Pricing</a>
-              <a href="#resources">Resources</a>
+              <Link href="#publishing">Publishing</Link>
+              <Link href="#analytics">Analytics</Link>
+              <Link href="#engagement">AI advisor</Link>
+              <Link href="#pricing">Pricing</Link>
+              <Link href="#resources">Resources</Link>
             </div>
           </details>
         </motion.div>

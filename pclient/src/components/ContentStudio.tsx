@@ -22,8 +22,13 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { useCreatePost } from "@/lib/hooks/use-posts";
+import {
+  useCreatePost,
+  usePublishPostImmediately,
+  useSchedulePost,
+} from "@/lib/hooks/use-posts";
 import { useUploadMedia } from "@/lib/hooks/use-media";
+import { useSocialAccounts } from "@/lib/hooks/use-social-accounts";
 
 interface ContentStudioProps {
   firstName: string;
@@ -45,7 +50,7 @@ export default function ContentStudio({
   const [caption, setCaption] = useState("");
   const [platform, setPlatform] = useState<PreviewPlatform>("Instagram");
   const [mode, setMode] = useState<PublishMode>("now");
-  const [scheduleDate, setScheduleDate] = useState("2026-09-16T10:00");
+  const [scheduleDate, setScheduleDate] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showLinkField, setShowLinkField] = useState(false);
   const [linkValue, setLinkValue] = useState("");
@@ -60,7 +65,11 @@ export default function ContentStudio({
   
   // Backend mutations
   const createPostMutation = useCreatePost();
+  const publishPostMutation = usePublishPostImmediately();
+  const schedulePostMutation = useSchedulePost();
   const uploadMediaMutation = useUploadMedia();
+  const { data: socialAccounts = [] } = useSocialAccounts();
+  const [selectedSocialAccountId, setSelectedSocialAccountId] = useState("");
 
   useEffect(() => {
     const restoreTimer = window.setTimeout(() => {
@@ -76,7 +85,7 @@ export default function ContentStudio({
         setCaption(draft.caption ?? "");
         setPlatform(draft.platform ?? "Instagram");
         setMode(draft.mode ?? "now");
-        setScheduleDate(draft.scheduleDate ?? "2026-09-16T10:00");
+        setScheduleDate(draft.scheduleDate ?? "");
         setDraftReady(true);
       } catch {
         window.localStorage.removeItem("poste-new-post-draft");
@@ -140,7 +149,7 @@ export default function ContentStudio({
     showNotice("Draft cleared");
   }
 
-  // Validates the composer before simulating a publish or scheduled post.
+  // Creates the post, then sends it through the selected publishing workflow.
   async function publishPost() {
     if (!caption.trim()) {
       showNotice("Write a caption before publishing");
@@ -148,6 +157,17 @@ export default function ContentStudio({
       return;
     }
     
+    if (socialAccounts.length === 0) {
+      showNotice("Connect a social account before publishing");
+      return;
+    }
+
+    const socialAccountId = selectedSocialAccountId || socialAccounts[0].id;
+    if (mode === "schedule" && !scheduleDate) {
+      showNotice("Choose a date and time before scheduling");
+      return;
+    }
+
     setPublishing(true);
     
     try {
@@ -155,12 +175,25 @@ export default function ContentStudio({
       const formData = new FormData();
       formData.append("content", caption);
       formData.append("hashtags", JSON.stringify([]));
-      formData.append("targetPlatform", platform.toUpperCase());
+      formData.append("targetPlatform", platform === "Twitter" ? "X" : platform.toUpperCase());
       
       // Create the post
       const result = await createPostMutation.mutateAsync(formData);
       
-      if (result) {
+      if (result?.id) {
+        if (mode === "schedule") {
+          const scheduleFormData = new FormData();
+          scheduleFormData.append("postId", result.id);
+          scheduleFormData.append("socialAccountId", socialAccountId);
+          scheduleFormData.append("scheduledFor", new Date(scheduleDate).toISOString());
+          await schedulePostMutation.mutateAsync(scheduleFormData);
+        } else {
+          const publishFormData = new FormData();
+          publishFormData.append("postId", result.id);
+          publishFormData.append("socialAccountId", socialAccountId);
+          await publishPostMutation.mutateAsync(publishFormData);
+        }
+
         window.localStorage.removeItem("poste-new-post-draft");
         setDraftReady(false);
         setCaption("");
@@ -169,7 +202,7 @@ export default function ContentStudio({
         showNotice(
           mode === "now"
             ? `Post published to ${platform}`
-            : `Post scheduled for ${scheduleDate.replace("T", " ")}`,
+            : `Post scheduled for ${new Date(scheduleDate).toLocaleString()}`,
         );
       }
     } catch (error) {
@@ -540,14 +573,30 @@ export default function ContentStudio({
               Schedule
             </label>
             {mode === "schedule" && (
-              <label className="studio-date-input">
-                <Calendar size={17} />
-                <input
-                  type="datetime-local"
-                  value={scheduleDate}
-                  onChange={(event) => setScheduleDate(event.target.value)}
-                />
-              </label>
+              <>
+                <label className="studio-date-input">
+                  <Calendar size={17} />
+                  <input
+                    type="datetime-local"
+                    value={scheduleDate}
+                    min={new Date().toISOString().slice(0, 16)}
+                    onChange={(event) => setScheduleDate(event.target.value)}
+                  />
+                </label>
+                <label className="studio-date-input">
+                  <span>Channel</span>
+                  <select
+                    value={selectedSocialAccountId || socialAccounts[0]?.id || ""}
+                    onChange={(event) => setSelectedSocialAccountId(event.target.value)}
+                    aria-label="Choose social account"
+                  >
+                    {socialAccounts.length === 0 && <option value="">Connect an account first</option>}
+                    {socialAccounts.map((account) => (
+                      <option key={account.id} value={account.id}>{account.platform} · @{account.username}</option>
+                    ))}
+                  </select>
+                </label>
+              </>
             )}
           </div>
           <div className="publish-actions">

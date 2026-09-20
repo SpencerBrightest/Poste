@@ -186,7 +186,6 @@ export default function EditorDashboard({ firstName, imageUrl }: EditorDashboard
             <button className="dashboard-icon-button" type="button" onClick={() => { toggleMenu("notifications"); }} aria-label="Notifications"><Bell size={16} /></button>
             {menuOpen === "messages" && <div className="dashboard-popover">No new messages</div>}
             {menuOpen === "notifications" && <div className="dashboard-popover">Everything is up to date</div>}
-            <span className="dashboard-avatar" style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined} aria-label={`${displayName} profile`} />
             <UserButton />
           </div>
         </header>
