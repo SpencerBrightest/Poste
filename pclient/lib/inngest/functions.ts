@@ -92,7 +92,8 @@ export const processAccountDeletion = inngest.createFunction(
   { id: "process-account-deletion" },
   { event: "deletion/process" },
   async ({ event }) => {
-    // Implementation in Phase 12
-    console.log("Process account deletion:", event.data);
+    const { organizationId } = event.data;
+    const { processAccountDeletion } = await import("@/lib/actions/deletion");
+    await processAccountDeletion(organizationId);
   }
 );

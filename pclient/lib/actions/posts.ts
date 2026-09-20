@@ -9,6 +9,7 @@ import { PostStatus, SocialPlatform } from "@prisma/client";
 import { AppError, ValidationError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { inngest } from "@/lib/inngest/client";
+import { preventDuplicateScheduledPost } from "@/lib/security/concurrency";
 
 /**
  * Create a new post
@@ -184,6 +185,13 @@ export async function schedulePost(formData: FormData) {
       where: { id: data.postId },
       data: { status: PostStatus.SCHEDULED },
     });
+
+    // Prevent duplicate scheduled posts
+    await preventDuplicateScheduledPost(
+      organization.id,
+      data.socialAccountId,
+      data.scheduledFor
+    );
 
     // Create scheduled post
     const scheduledPost = await prisma.scheduledPost.create({

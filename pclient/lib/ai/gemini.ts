@@ -1,14 +1,23 @@
-import { GoogleGenerativeAI } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import env from "@/lib/env";
 import { logger } from "@/lib/logger";
-import type { AIProvider, GenerateContentInput, GenerateContentOutput, TransformContentInput, TransformContentOutput, ScoreContentInput, ScoreContentOutput } from "./types";
+import type { 
+  AIProvider, 
+  GenerateContentInput, 
+  GenerateContentOutput, 
+  TransformContentInput, 
+  TransformContentOutput, 
+  ScoreContentInput, 
+  ScoreContentOutput 
+} from "./types";
 
 export class GeminiProvider implements AIProvider {
-  private client: GoogleGenerativeAI;
+  private client: GoogleGenAI;
   private model: string;
 
   constructor() {
-    this.client = new GoogleGenerativeAI(env.GOOGLE_AI_API_KEY || "");
+    // Correct initialization syntax for the consolidated @google/genai SDK
+    this.client = new GoogleGenAI({ apiKey: env.GOOGLE_AI_API_KEY || "" });
     this.model = "gemini-1.5-flash";
   }
 
@@ -27,34 +36,32 @@ Format your response as JSON with:
   "reasoning": "Brief explanation of why this content works"
 }`;
 
-      const model = this.client.getGenerativeModel({
+      // Consolidated client-first implementation
+      const response = await this.client.models.generateContent({
         model: this.model,
-        systemInstruction: systemPrompt,
+        contents: "Generate social media content",
+        config: {
+          systemInstruction: systemPrompt,
+          responseMimeType: "application/json",
+        },
       });
 
-      const response = await model.generateContent("Generate social media content");
-      const text = response.response.text();
-      
-      // Extract JSON from response
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const content = jsonMatch ? JSON.parse(jsonMatch[0]) : {
-        caption: text,
-        hashtags: ["#socialmedia", "#growth"],
-        cta: input.includeCTA ? "Share your thoughts!" : undefined,
-        platform: input.targetPlatform,
-        tone: input.tone,
-        reasoning: "Generated content for engagement",
-      };
+      const text = response.text;
+      if (!text) {
+        throw new Error("Empty response from Gemini API");
+      }
+
+      const content = JSON.parse(text);
 
       logger.info("AI content generated", { platform: input.targetPlatform });
 
       return {
-        caption: content.caption,
+        caption: content.caption || "",
         hashtags: content.hashtags || [],
         cta: content.cta,
         platform: input.targetPlatform,
         tone: input.tone,
-        reasoning: content.reasoning,
+        reasoning: content.reasoning || "",
       };
     } catch (error) {
       logger.error("Failed to generate AI content", error);
@@ -71,8 +78,8 @@ Format your response as JSON with:
       const systemPrompt = `You are a social media content expert. Transform the following content.
 Original content: ${input.originalContent}
 Transformation: ${input.transformation}
-${input.targetPlatform ? `Target platform: ${input.targetPlatform}` : ""}
-${input.tone ? `Tone: ${input.tone}` : ""}
+${input.targetPlatform ? `Target platform: \${input.targetPlatform}` : ""}
+${input.tone ? `Tone: \${input.tone}` : ""}
 
 Format your response as JSON with:
 {
@@ -84,33 +91,31 @@ Format your response as JSON with:
   "reasoning": "Brief explanation of the transformation"
 }`;
 
-      const model = this.client.getGenerativeModel({
+      const response = await this.client.models.generateContent({
         model: this.model,
-        systemInstruction: systemPrompt,
+        contents: "Transform this content",
+        config: {
+          systemInstruction: systemPrompt,
+          responseMimeType: "application/json",
+        },
       });
 
-      const response = await model.generateContent("Transform this content");
-      const text = response.response.text();
-      
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const content = jsonMatch ? JSON.parse(jsonMatch[0]) : {
-        caption: text,
-        hashtags: [],
-        cta: undefined,
-        platform: input.targetPlatform,
-        tone: input.tone,
-        reasoning: "Content transformed",
-      };
+      const text = response.text;
+      if (!text) {
+        throw new Error("Empty response from Gemini API");
+      }
+
+      const content = JSON.parse(text);
 
       logger.info("Content transformed", { transformation: input.transformation });
 
       return {
-        caption: content.caption,
+        caption: content.caption || "",
         hashtags: content.hashtags || [],
         cta: content.cta,
-        platform: content.platform,
-        tone: content.tone,
-        reasoning: content.reasoning,
+        platform: content.platform || input.targetPlatform,
+        tone: content.tone || input.tone,
+        reasoning: content.reasoning || "",
       };
     } catch (error) {
       logger.error("Failed to transform content", error);
@@ -133,30 +138,29 @@ Format your response as JSON with:
   "recommendations": ["improvement1", "improvement2"]
 }`;
 
-      const model = this.client.getGenerativeModel({
+      const response = await this.client.models.generateContent({
         model: this.model,
-        systemInstruction: systemPrompt,
+        contents: "Score this content",
+        config: {
+          systemInstruction: systemPrompt,
+          responseMimeType: "application/json",
+        },
       });
 
-      const response = await model.generateContent("Score this content");
-      const text = response.response.text();
-      
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      const score = jsonMatch ? JSON.parse(jsonMatch[0]) : {
-        overall: 75,
-        hook: 70,
-        clarity: 75,
-        cta: 70,
-        recommendations: ["Improve engagement", "Add hashtags"],
-      };
+      const text = response.text;
+      if (!text) {
+        throw new Error("Empty response from Gemini API");
+      }
+
+      const score = JSON.parse(text);
 
       logger.info("Content scored", { overall: score.overall });
 
       return {
-        overall: score.overall,
-        hook: score.hook,
-        clarity: score.clarity,
-        cta: score.cta,
+        overall: score.overall ?? 0,
+        hook: score.hook ?? 0,
+        clarity: score.clarity ?? 0,
+        cta: score.cta ?? 0,
         recommendations: score.recommendations || [],
       };
     } catch (error) {
@@ -170,13 +174,15 @@ Format your response as JSON with:
       const systemPrompt = `You are a social media analytics expert. Generate actionable insights for a ${input.platform} account.
 Provide 3-5 specific, actionable recommendations.`;
 
-      const model = this.client.getGenerativeModel({
+      const response = await this.client.models.generateContent({
         model: this.model,
-        systemInstruction: systemPrompt,
+        contents: "Generate insights",
+        config: {
+          systemInstruction: systemPrompt,
+        },
       });
 
-      const response = await model.generateContent("Generate insights");
-      const insights = response.response.text().split("\n").filter(Boolean);
+      const insights = response.text ? response.text.split("\n").filter(Boolean) : [];
 
       logger.info("Insights generated", { platform: input.platform });
 
