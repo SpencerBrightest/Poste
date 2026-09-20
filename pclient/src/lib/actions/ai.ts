@@ -16,7 +16,8 @@ import { geminiProvider } from "@/lib/ai/gemini";
 export async function generateAIContent(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Validate input
     const data = generateContentSchema.parse({
@@ -61,7 +62,8 @@ export async function generateAIContent(formData: FormData) {
 export async function transformContent(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Validate input
     const data = transformContentSchema.parse({
@@ -113,7 +115,8 @@ export async function transformContent(formData: FormData) {
 export async function scoreContent(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Validate input
     const data = scoreContentSchema.parse({

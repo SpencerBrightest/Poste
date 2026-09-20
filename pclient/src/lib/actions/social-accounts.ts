@@ -15,7 +15,8 @@ import { logger } from "@/lib/logger";
 export async function getSocialAccounts() {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     const accounts = await prisma.socialAccount.findMany({
       where: { organizationId: organization.id },
@@ -35,7 +36,8 @@ export async function getSocialAccounts() {
 export async function connectSocialAccount(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Validate input
     const data = connectSocialAccountSchema.parse({
@@ -70,7 +72,8 @@ export async function connectSocialAccount(formData: FormData) {
 export async function handleOAuthCallback(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     const platform = formData.get("platform") as SocialPlatform;
     const accessToken = formData.get("accessToken") as string;
@@ -142,7 +145,8 @@ export async function handleOAuthCallback(formData: FormData) {
 export async function disconnectSocialAccount(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Validate input
     const data = disconnectSocialAccountSchema.parse({

@@ -27,9 +27,9 @@ export async function GET(req: NextRequest) {
     }
 
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organization) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
 
@@ -43,8 +43,8 @@ export async function GET(req: NextRequest) {
     const existingAccount = await prisma.socialAccount.findUnique({
       where: {
         organizationId_platform_platformAccountId: {
-          organizationId: organization.organization.id,
-          platform: SocialPlatform.TWITTER,
+          organizationId: organization.id,
+          platform: SocialPlatform.X,
           platformAccountId: accountInfo.platformAccountId,
         },
       },
@@ -64,11 +64,11 @@ export async function GET(req: NextRequest) {
     } else {
       // Check quota
       const accounts = await prisma.socialAccount.count({
-        where: { organizationId: organization.organization.id },
+        where: { organizationId: organization.id },
       });
 
       const subscription = await prisma.subscription.findFirst({
-        where: { organizationId: organization.organization.id },
+        where: { organizationId: organization.id },
       });
 
       const limit = subscription?.connectedAccountsLimit || 1;
@@ -80,8 +80,8 @@ export async function GET(req: NextRequest) {
       // Create new account
       await prisma.socialAccount.create({
         data: {
-          organizationId: organization.organization.id,
-          platform: SocialPlatform.TWITTER,
+          organizationId: organization.id,
+          platform: SocialPlatform.X,
           platformAccountId: accountInfo.platformAccountId,
           username: accountInfo.username,
           displayName: accountInfo.displayName,

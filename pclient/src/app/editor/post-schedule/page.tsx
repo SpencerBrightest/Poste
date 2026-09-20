@@ -15,16 +15,16 @@ export default async function PostSchedulePage() {
   }
 
   await getCurrentUser();
-  const organization = await getOrganization();
+  const { organization } = await getOrganization();
 
-  if (!organization.organization) {
+  if (!organization) {
     redirect("/onboarding");
   }
 
   // Fetch scheduled posts
   const scheduledPosts = await prisma.scheduledPost.findMany({
     where: {
-      organizationId: organization.organization.id,
+      organizationId: organization.id,
       status: PostStatus.SCHEDULED,
     },
     include: {

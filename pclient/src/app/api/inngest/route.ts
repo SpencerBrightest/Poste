@@ -1,17 +1,13 @@
-import { NextResponse } from "next/server";
+import { serve } from "inngest/next";
+import { inngest } from "@/lib/inngest/client";
+import {
+  processAccountDeletion,
+  publishScheduledPost,
+  syncPostAnalytics,
+} from "@/lib/inngest/functions";
 
-// Placeholder for Inngest integration
-// Will be implemented in Phase 7 (Scheduling)
-export async function GET() {
-  return NextResponse.json({
-    status: "Inngest integration pending",
-    message: "Background jobs will be implemented in Phase 7",
-  });
-}
-
-export async function POST() {
-  return NextResponse.json({
-    status: "Inngest integration pending",
-    message: "Background jobs will be implemented in Phase 7",
-  });
-}
+// Exposes Poste's background functions to Inngest for scheduled publishing and sync jobs.
+export const { GET, POST, PUT } = serve({
+  client: inngest,
+  functions: [publishScheduledPost, syncPostAnalytics, processAccountDeletion],
+});

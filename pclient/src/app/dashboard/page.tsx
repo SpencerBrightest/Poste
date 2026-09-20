@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getCurrentUser, getOrganization } from "@/lib/permissions";
@@ -13,16 +13,17 @@ export default async function DashboardPage() {
   }
 
   const user = await getCurrentUser();
-  const organization = await getOrganization();
+  const clerkProfile = await currentUser();
+  const { organization } = await getOrganization();
 
-  if (!organization.organization) {
+  if (!organization) {
     redirect("/onboarding");
   }
 
   // Fetch real analytics data
   const analytics = await getAnalyticsData();
 
-  const data = analytics.success ? analytics.data : {
+  const data = analytics.success && analytics.data ? analytics.data : {
     totalPosts: 0,
     publishedPosts: 0,
     scheduledPosts: 0,
@@ -34,7 +35,7 @@ export default async function DashboardPage() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Welcome back, {user?.firstName || "Creator"}!</h1>
+        <h1>Welcome back, {clerkProfile?.firstName || clerkProfile?.username || user.email}!</h1>
         <p>Here's what's happening with your social media</p>
       </div>
       <div className="dashboard-metrics">

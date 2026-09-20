@@ -13,9 +13,9 @@ export async function GET() {
     }
 
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organization) {
       return NextResponse.json({ error: "No organization found" }, { status: 400 });
     }
 
@@ -25,7 +25,7 @@ export async function GET() {
     // Get authorization URL
     const authUrl = await twitterProvider.getAuthorizationUrl(state);
 
-    logger.info("Twitter OAuth initiated", { organizationId: organization.organization.id });
+    logger.info("Twitter OAuth initiated", { organizationId: organization.id });
 
     return NextResponse.json({ authUrl, state });
   } catch (error) {

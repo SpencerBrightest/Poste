@@ -15,7 +15,8 @@ import { logger } from "@/lib/logger";
 export async function uploadMedia(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     const file = formData.get("file") as File;
     const postId = formData.get("postId") as string | undefined;
@@ -76,7 +77,8 @@ export async function uploadMedia(formData: FormData) {
 export async function deleteMedia(mediaId: string) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Verify ownership
     const media = await prisma.media.findUnique({

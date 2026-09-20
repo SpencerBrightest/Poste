@@ -106,9 +106,9 @@ export async function getOrganization() {
 export async function updateOrganization(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const organizationResult = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organizationResult.organization) {
       throw new ValidationError("No organization found");
     }
 
@@ -116,7 +116,7 @@ export async function updateOrganization(formData: FormData) {
 
     // Update organization
     const updatedOrg = await prisma.organization.update({
-      where: { id: organization.id },
+      where: { id: organizationResult.organization.id },
       data: {
         ...(name && { name }),
       },

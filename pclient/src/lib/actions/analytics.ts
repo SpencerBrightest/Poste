@@ -6,15 +6,145 @@ import { getCurrentUser, getOrganization } from "@/lib/permissions";
 import { PostStatus } from "@prisma/client";
 import { logger } from "@/lib/logger";
 
+export interface DashboardMetric {
+  name: string;
+  value: number;
+  published: number;
+  scheduled: number;
+  color: string;
+}
+
+export interface DashboardChartPoint {
+  month: string;
+  posts: number;
+  published: number;
+}
+
+export interface DashboardData {
+  totalPosts: number;
+  publishedPosts: number;
+  scheduledPosts: number;
+  draftPosts: number;
+  connectedAccounts: number;
+  platformMetrics: DashboardMetric[];
+  chartPoints: DashboardChartPoint[];
+  likes: number;
+  comments: number;
+  shares: number;
+  impressions: number;
+  engagementRate: number;
+}
+
+const platformColors: Record<string, string> = {
+  X: "#38bdf8",
+  LINKEDIN: "#2563eb",
+  INSTAGRAM: "#e879a9",
+  FACEBOOK: "#3b82f6",
+  TIKTOK: "#111827",
+};
+
+/** Build the organization-scoped data snapshot used by the editor dashboard. */
+export async function getDashboardData(): Promise<{
+  success: boolean;
+  data: DashboardData | null;
+  error?: string;
+}> {
+  try {
+    const { organization } = await getOrganization();
+
+    if (!organization) {
+      return { success: false, data: null, error: "No organization found" };
+    }
+
+    const [posts, accounts, analytics] = await Promise.all([
+      prisma.post.findMany({
+        where: { organizationId: organization.id },
+        select: { targetPlatform: true, status: true, createdAt: true, publishedAt: true },
+        orderBy: { createdAt: "asc" },
+      }),
+      prisma.socialAccount.findMany({
+        where: { organizationId: organization.id },
+        select: { platform: true },
+      }),
+      prisma.postAnalytics.findMany({
+        where: { organizationId: organization.id },
+        select: { likes: true, comments: true, shares: true, impressions: true },
+      }),
+    ]);
+
+    const platformMetrics = Object.entries(
+      posts.reduce<Record<string, DashboardMetric>>((metrics, post) => {
+        const name = post.targetPlatform;
+        const metric = metrics[name] ?? {
+          name,
+          value: 0,
+          published: 0,
+          scheduled: 0,
+          color: platformColors[name] ?? "#64748b",
+        };
+        metric.value += 1;
+        if (post.status === PostStatus.PUBLISHED) metric.published += 1;
+        if (post.status === PostStatus.SCHEDULED) metric.scheduled += 1;
+        metrics[name] = metric;
+        return metrics;
+      }, {})
+    ).map(([, metric]) => metric);
+
+    const monthFormatter = new Intl.DateTimeFormat("en-US", { month: "short" });
+    const chartPoints = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date();
+      date.setDate(1);
+      date.setMonth(date.getMonth() - (6 - index));
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const monthPosts = posts.filter((post) => {
+        const createdAt = new Date(post.createdAt);
+        return createdAt.getFullYear() === year && createdAt.getMonth() === month;
+      });
+      return {
+        month: monthFormatter.format(date),
+        posts: monthPosts.length,
+        published: monthPosts.filter((post) => post.status === PostStatus.PUBLISHED).length,
+      };
+    });
+
+    const likes = analytics.reduce((total, item) => total + item.likes, 0);
+    const comments = analytics.reduce((total, item) => total + item.comments, 0);
+    const shares = analytics.reduce((total, item) => total + item.shares, 0);
+    const impressions = analytics.reduce((total, item) => total + item.impressions, 0);
+
+    return {
+      success: true,
+      data: {
+        totalPosts: posts.length,
+        publishedPosts: posts.filter((post) => post.status === PostStatus.PUBLISHED).length,
+        scheduledPosts: posts.filter((post) => post.status === PostStatus.SCHEDULED).length,
+        draftPosts: posts.filter((post) => post.status === PostStatus.DRAFT).length,
+        connectedAccounts: accounts.length,
+        platformMetrics,
+        chartPoints,
+        likes,
+        comments,
+        shares,
+        impressions,
+        engagementRate: impressions > 0 ? ((likes + comments + shares) / impressions) * 100 : 0,
+      },
+    };
+  } catch (error) {
+    logger.error("Failed to build dashboard data", error);
+    return { success: false, data: null, error: "Failed to load dashboard data" };
+  }
+}
+
 /**
  * Get analytics data for the dashboard
  */
 export async function getAnalyticsData() {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
-    if (!organization.organization) {
+    if (!organization) {
       return {
         success: false,
         error: "No organization found",
@@ -103,7 +233,7 @@ export async function getAnalyticsData() {
 export async function getPostAnalytics(postId: string) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
 
     const post = await prisma.post.findUnique({
       where: { id: postId },
@@ -112,7 +242,7 @@ export async function getPostAnalytics(postId: string) {
       },
     });
 
-    if (!post || post.organizationId !== organization.organization?.id) {
+    if (!organization || !post || post.organizationId !== organization.id) {
       return {
         success: false,
         error: "Post not found or access denied",

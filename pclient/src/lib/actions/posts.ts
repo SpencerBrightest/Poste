@@ -41,9 +41,6 @@ export async function createPost(formData: FormData) {
       },
     });
 
-    // Increment quota
-    await incrementQuotaUsage("aiGenerations");
-
     logger.info("Post created", { postId: post.id, organizationId: organization.id });
 
     revalidatePath("/editor");
@@ -63,7 +60,8 @@ export async function createPost(formData: FormData) {
 export async function updatePost(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Validate input
     const data = updatePostSchema.parse({
@@ -113,7 +111,8 @@ export async function updatePost(formData: FormData) {
 export async function deletePost(postId: string) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Verify ownership
     const post = await prisma.post.findUnique({
@@ -149,7 +148,8 @@ export async function deletePost(postId: string) {
 export async function schedulePost(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Validate input
     const data = schedulePostSchema.parse({
@@ -232,7 +232,8 @@ export async function schedulePost(formData: FormData) {
 export async function publishPostImmediately(formData: FormData) {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     // Validate input
     const data = publishImmediatelySchema.parse({
@@ -258,14 +259,35 @@ export async function publishPostImmediately(formData: FormData) {
       throw new ValidationError("Social account not found or access denied");
     }
 
-    // Update post status to publishing
     await prisma.post.update({
       where: { id: data.postId },
       data: { status: PostStatus.PUBLISHING },
     });
 
-    // TODO: Call social platform API to publish (Phase 6)
-    // TODO: Update post status to PUBLISHED or FAILED based on result
+    const result = socialAccount.platform === SocialPlatform.X
+      ? await (await import("@/lib/social/twitter")).twitterProvider.publishPost({
+          accessToken: socialAccount.accessToken,
+          content: post.content,
+          hashtags: post.hashtags,
+        })
+      : { success: false, error: "Publishing is not supported for this platform yet" };
+
+    if (result.success) {
+      await prisma.post.update({
+        where: { id: data.postId },
+        data: {
+          status: PostStatus.PUBLISHED,
+          platformPostId: result.externalPostId,
+          publishedAt: result.publishedAt ?? new Date(),
+        },
+      });
+    } else {
+      await prisma.post.update({
+        where: { id: data.postId },
+        data: { status: PostStatus.FAILED, failureReason: result.error },
+      });
+      throw new ValidationError(result.error || "Failed to publish post");
+    }
 
     logger.info("Post published immediately", { postId: data.postId });
 
@@ -286,7 +308,8 @@ export async function publishPostImmediately(formData: FormData) {
 export async function getPosts() {
   try {
     const user = await getCurrentUser();
-    const organization = await getOrganization();
+    const { organization } = await getOrganization();
+    if (!organization) throw new ValidationError("No organization found");
 
     const posts = await prisma.post.findMany({
       where: { organizationId: organization.id },
