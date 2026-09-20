@@ -121,7 +121,7 @@ export default function EditorDashboard({ firstName, imageUrl, dashboardData }: 
         <div className="dashboard-brand-row">
           <Link className="dashboard-brand" href="/editor" aria-label="Poste dashboard">
             <span className="dashboard-logo"><Sparkles size={15} /></span>
-            <span>SocialNest</span>
+            <span>Poste.</span>
           </Link>
           <button className="dashboard-icon-button sidebar-close" type="button" onClick={() => setSidebarOpen(false)} aria-label="Close menu">
             <X size={17} />
