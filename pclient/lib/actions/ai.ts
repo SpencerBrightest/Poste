@@ -8,7 +8,7 @@ import { generateContentSchema, transformContentSchema, scoreContentSchema } fro
 import { SocialPlatform } from "@prisma/client";
 import { AppError, ValidationError, QuotaExceededError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
-import { openAIProvider } from "@/lib/ai/openai";
+import { geminiProvider } from "@/lib/ai/gemini";
 
 /**
  * Generate AI content for a post
@@ -32,8 +32,8 @@ export async function generateAIContent(formData: FormData) {
       throw new QuotaExceededError("AI generation quota exceeded. Please upgrade your subscription.");
     }
 
-    // Call OpenAI API
-    const generatedContent = await openAIProvider.generateContent({
+    // Call Gemini API
+    const generatedContent = await geminiProvider.generateContent({
       goal: data.goal,
       targetPlatform: data.targetPlatform as SocialPlatform,
       tone: data.tone,
@@ -83,8 +83,8 @@ export async function transformContent(formData: FormData) {
     // Check quota
     await checkSubscriptionQuota("aiGenerations");
 
-    // Call OpenAI API for transformation
-    const transformedContent = await openAIProvider.transformContent({
+    // Call Gemini API for transformation
+    const transformedContent = await geminiProvider.transformContent({
       postId: data.postId,
       originalContent: post.content,
       transformation: data.transformation,
@@ -129,8 +129,8 @@ export async function scoreContent(formData: FormData) {
       throw new ValidationError("Post not found or access denied");
     }
 
-    // Call OpenAI API for scoring
-    const score = await openAIProvider.scoreContent({
+    // Call Gemini API for scoring
+    const score = await geminiProvider.scoreContent({
       postId: data.postId,
       content: post.content,
       platform: post.targetPlatform,

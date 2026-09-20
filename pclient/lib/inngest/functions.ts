@@ -1,14 +1,81 @@
 import { inngest } from "./client";
-
-// Placeholder for Inngest function definitions
-// These will be implemented in Phase 7 (Scheduling)
+import prisma from "@/lib/prisma";
+import { twitterProvider } from "@/lib/social/twitter";
+import { PostStatus } from "@prisma/client";
+import { logger } from "@/lib/logger";
 
 export const publishScheduledPost = inngest.createFunction(
   { id: "publish-scheduled-post" },
   { event: "post/publish" },
-  async ({ event }) => {
-    // Implementation in Phase 7
-    console.log("Publish scheduled post:", event.data);
+  async ({ event, step }) => {
+    const { scheduledPostId } = event.data;
+
+    // Fetch scheduled post with relations
+    const scheduledPost = await prisma.scheduledPost.findUnique({
+      where: { id: scheduledPostId },
+      include: {
+        post: true,
+        socialAccount: true,
+      },
+    });
+
+    if (!scheduledPost) {
+      throw new Error("Scheduled post not found");
+    }
+
+    // Update post status to publishing
+    await prisma.post.update({
+      where: { id: scheduledPost.postId },
+      data: { status: PostStatus.PUBLISHING },
+    });
+
+    // Publish to platform
+    let platformPostId: string | null = null;
+    let publishedAt: Date | null = null;
+
+    if (scheduledPost.socialAccount.platform === "TWITTER") {
+      const result = await twitterProvider.publishPost({
+        accessToken: scheduledPost.socialAccount.accessToken,
+        content: scheduledPost.post.content,
+        hashtags: scheduledPost.post.hashtags,
+      });
+
+      if (result.success) {
+        platformPostId = result.externalPostId || null;
+        publishedAt = result.publishedAt || new Date();
+      }
+    }
+
+    // Update post status
+    if (platformPostId) {
+      await prisma.post.update({
+        where: { id: scheduledPost.postId },
+        data: {
+          status: PostStatus.PUBLISHED,
+          platformPostId,
+          publishedAt,
+        },
+      });
+
+      await prisma.scheduledPost.update({
+        where: { id: scheduledPostId },
+        data: { status: PostStatus.PUBLISHED },
+      });
+
+      logger.info("Post published successfully", { scheduledPostId, platformPostId });
+    } else {
+      await prisma.post.update({
+        where: { id: scheduledPost.postId },
+        data: { status: PostStatus.FAILED },
+      });
+
+      await prisma.scheduledPost.update({
+        where: { id: scheduledPostId },
+        data: { status: PostStatus.FAILED },
+      });
+
+      logger.error("Post publishing failed", { scheduledPostId });
+    }
   }
 );
 

@@ -14,7 +14,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: z.string().default("/dashboard"),
 
   // AI Provider
-  OPENAI_API_KEY: z.string().min(1).optional(),
+  OPENAI_API_KEY: z.string().optional(),
+  GOOGLE_AI_API_KEY: z.string().optional(),
   AI_MODEL: z.string().default("gpt-4o"),
 
   // Social Platform OAuth (X/Twitter)
