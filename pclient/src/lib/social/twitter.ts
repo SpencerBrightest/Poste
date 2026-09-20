@@ -15,7 +15,7 @@ export class TwitterProvider implements SocialPlatformProvider {
   }
 
   getPlatformType(): SocialPlatform {
-    return SocialPlatform.TWITTER;
+    return SocialPlatform.X;
   }
 
   getMaxMediaCount(): number {

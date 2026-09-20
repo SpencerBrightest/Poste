@@ -49,7 +49,7 @@ export async function getAnalyticsData() {
     // Get recent analytics from PostAnalytics
     const recentAnalytics = await prisma.postAnalytics.findMany({
       where: { organizationId: organization.organization.id },
-      orderBy: { date: "desc" },
+      orderBy: { syncedAt: "desc" },
       take: 30,
     });
 
@@ -70,20 +70,22 @@ export async function getAnalyticsData() {
 
     logger.info("Analytics data fetched", { organizationId: organization.organization.id });
 
+    const data = {
+      totalPosts,
+      publishedPosts,
+      scheduledPosts,
+      connectedAccounts,
+      engagementRate,
+      postsByPlatform: postsByPlatform.map((p) => ({
+        platform: p.targetPlatform,
+        count: p._count,
+      })),
+      recentAnalytics,
+    };
+
     return {
       success: true,
-      data: {
-        totalPosts,
-        publishedPosts,
-        scheduledPosts,
-        connectedAccounts,
-        engagementRate,
-        postsByPlatform: postsByPlatform.map((p) => ({
-          platform: p.targetPlatform,
-          count: p._count,
-        })),
-        recentAnalytics,
-      },
+      data,
     };
   } catch (error) {
     logger.error("Failed to fetch analytics data", error);

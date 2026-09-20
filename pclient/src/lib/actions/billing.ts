@@ -162,9 +162,9 @@ export async function handleStripeWebhook(event: Stripe.Event) {
 
         if (organizationId) {
           await prisma.subscription.update({
-            where: { organizationId },
+            where: { organizationId: organizationId },
             data: {
-              status: "CANCELED",
+              status: "CANCELLED",
               plan: "FREE",
               aiGenerationsLimit: 10,
               scheduledPostsLimit: 5,

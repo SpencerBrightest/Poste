@@ -47,7 +47,7 @@ export async function getOrganization(organizationId?: string) {
   const orgId = organizationId || user.organizationId;
   
   if (!orgId) {
-    throw new NotFoundError("Organization not found");
+    return { organization: null };
   }
 
   // Verify user belongs to organization
@@ -60,10 +60,10 @@ export async function getOrganization(organizationId?: string) {
   });
 
   if (!organization) {
-    throw new NotFoundError("Organization not found");
+    return { organization: null };
   }
 
-  return organization;
+  return { organization };
 }
 
 /**
@@ -73,7 +73,11 @@ export async function canAccessResource(
   resourceType: "post" | "socialAccount" | "subscription",
   resourceId: string
 ) {
-  const organization = await getOrganization();
+  const { organization } = await getOrganization();
+  
+  if (!organization) {
+    return false;
+  }
 
   switch (resourceType) {
     case "post": {
@@ -121,7 +125,11 @@ export async function requireResourceAccess(
 export async function checkSubscriptionQuota(
   quotaType: "aiGenerations" | "scheduledPosts" | "connectedAccounts"
 ) {
-  const organization = await getOrganization();
+  const { organization } = await getOrganization();
+  
+  if (!organization) {
+    throw new ForbiddenError("No organization found");
+  }
   
   const subscription = await prisma.subscription.findUnique({
     where: { organizationId: organization.id },
@@ -149,7 +157,11 @@ export async function checkSubscriptionQuota(
 export async function incrementQuotaUsage(
   quotaType: "aiGenerations" | "scheduledPosts" | "connectedAccounts"
 ) {
-  const organization = await getOrganization();
+  const { organization } = await getOrganization();
+  
+  if (!organization) {
+    throw new ForbiddenError("No organization found");
+  }
   
   const subscription = await prisma.subscription.update({
     where: { organizationId: organization.id },

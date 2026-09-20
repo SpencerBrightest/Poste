@@ -118,6 +118,9 @@ model Organization {
   id              String   @id @default(cuid())
   name            String
   slug            String   @unique
+  stripeCustomerId String?
+  deletionRequestedAt DateTime?
+  deletionScheduledFor DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -174,7 +177,7 @@ model Post {
   aiMetadata      Json?
   
   // Publication
-  externalPostId  String?
+  platformPostId  String?
   publishedAt     DateTime?
   failureReason   String?
   failureDetails  Json?
@@ -273,6 +276,7 @@ model PostAnalytics {
   @@index([platform])
   @@index([syncedAt])
   @@index([nextSyncAt])
+  @@index([syncedAt])
 }
 
 model Subscription {

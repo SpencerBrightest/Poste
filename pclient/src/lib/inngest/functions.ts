@@ -33,7 +33,7 @@ export const publishScheduledPost = inngest.createFunction(
     let platformPostId: string | null = null;
     let publishedAt: Date | null = null;
 
-    if (scheduledPost.socialAccount.platform === "TWITTER") {
+    if (scheduledPost.socialAccount.platform === SocialPlatform.X) {
       const result = await twitterProvider.publishPost({
         accessToken: scheduledPost.socialAccount.accessToken,
         content: scheduledPost.post.content,
