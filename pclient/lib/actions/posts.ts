@@ -8,6 +8,7 @@ import { createPostSchema, updatePostSchema, schedulePostSchema, publishImmediat
 import { PostStatus, SocialPlatform } from "@prisma/client";
 import { AppError, ValidationError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { inngest } from "@/lib/inngest/client";
 
 /**
  * Create a new post
@@ -198,7 +199,12 @@ export async function schedulePost(formData: FormData) {
     // Increment quota
     await incrementQuotaUsage("scheduledPosts");
 
-    // TODO: Enqueue background job for publishing (Phase 7)
+    // Enqueue background job for publishing
+    await inngest.send({
+      name: "post/publish",
+      data: { scheduledPostId: scheduledPost.id },
+      scheduledFor: data.scheduledFor,
+    });
 
     logger.info("Post scheduled", { scheduledPostId: scheduledPost.id });
 
