@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { ClerkProvider } from "@clerk/nextjs";
+import { ui } from "@clerk/ui";
 import { dark } from "@clerk/ui/themes";
+import { Providers } from "./providers";
 
 import "./globals.css";
 
@@ -22,6 +24,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       
       <body>
         <ClerkProvider
+          ui={ui}
           appearance={{
             theme: dark,
             variables: {
@@ -39,7 +42,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
             },
           }}
         >
-          {children}
+          <Providers>
+            {children}
+          </Providers>
         </ClerkProvider>
       </body>
     </html>

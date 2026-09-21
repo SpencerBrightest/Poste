@@ -45,7 +45,7 @@ export default function EditorSectionPage({ title, description, icon }: EditorSe
   return (
     <main className="section-page-shell">
       <header className="section-page-topbar">
-        <Link className="dashboard-brand" href="/editor"><span className="dashboard-logo"><Sparkles size={15} /></span><span>SocialNest</span></Link>
+        <Link className="dashboard-brand" href="/editor"><span className="dashboard-logo"><Sparkles size={15} /></span><span>Poste.</span></Link>
         <Link className="section-back-link" href="/editor"><ArrowLeft size={15} />Back to overview</Link>
       </header>
       <div className="section-page-content">

@@ -1,0 +1,410 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHING
+  PUBLISHED
+  FAILED
+}
+
+enum SocialPlatform {
+  X
+  LINKEDIN
+  INSTAGRAM
+  FACEBOOK
+  TIKTOK
+}
+
+enum SocialAccountStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+enum SubscriptionPlan {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+  TRIALING
+}
+
+enum NotificationType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  PUBLICATION_SUCCESS
+  PUBLICATION_FAILURE
+  TOKEN_EXPIRED
+  ACCOUNT_EVENT
+  DELETION_REQUEST
+  SUBSCRIPTION_EVENT
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+}
+
+enum JobStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum DeletionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+// ============================================
+// CORE ENTITIES
+// ============================================
+
+model User {
+  id            String    @id @default(cuid())
+  clerkUserId   String    @unique
+  email         String
+  role          UserRole  @default(USER)
+  organizationId String?   @unique
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  organization  Organization?  @relation(fields: [organizationId], references: [id])
+  notifications Notification[]
+
+  @@index([clerkUserId])
+  @@index([organizationId])
+}
+
+model Organization {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  stripeCustomerId String?
+  deletionRequestedAt DateTime?
+  deletionScheduledFor DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  users           User[]
+  socialAccounts  SocialAccount[]
+  posts           Post[]
+  media           Media[]
+  scheduledPosts  ScheduledPost[]
+  postAnalytics   PostAnalytics[]
+  subscriptions   Subscription[]
+  deletionRequest DeletionRequest?
+
+  @@index([slug])
+}
+
+model SocialAccount {
+  id                String             @id @default(cuid())
+  organizationId    String
+  platform          SocialPlatform
+  platformAccountId String
+  username          String
+  displayName       String?
+  accessToken       String             // Encrypted
+  refreshToken      String?            // Encrypted
+  tokenExpiresAt    DateTime?
+  status            SocialAccountStatus @default(ACTIVE)
+  lastSyncedAt      DateTime?
+  metadata          Json?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  // Relations
+  organization      Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  scheduledPosts    ScheduledPost[]
+
+  @@unique([organizationId, platform, platformAccountId])
+  @@index([organizationId])
+  @@index([platform, status])
+}
+
+model Post {
+  id              String      @id @default(cuid())
+  organizationId  String
+  content         String      @db.Text
+  hashtags        String[]    @default([])
+  cta             String?
+  targetPlatform  SocialPlatform
+  status          PostStatus  @default(DRAFT)
+  
+  // AI scoring
+  aiScore         Int?
+  scoreBreakdown  Json?
+  aiMetadata      Json?
+  
+  // Publication
+  platformPostId  String?
+  publishedAt     DateTime?
+  failureReason   String?
+  failureDetails  Json?
+  
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  organization    Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  media           Media[]
+  scheduledPost   ScheduledPost?
+  analytics       PostAnalytics[]
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([publishedAt])
+  @@index([targetPlatform])
+}
+
+model Media {
+  id              String   @id @default(cuid())
+  organizationId  String
+  postId          String?
+  type            MediaType
+  storageKey      String
+  url             String
+  mimeType        String
+  size            Int
+  width           Int?
+  height          Int?
+  duration        Int?     // For video
+  metadata        Json?
+  createdAt       DateTime @default(now())
+
+  // Relations
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  post            Post?       @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([postId])
+  @@index([storageKey])
+}
+
+model ScheduledPost {
+  id                String   @id @default(cuid())
+  postId            String   @unique
+  organizationId    String
+  socialAccountId   String
+  scheduledFor      DateTime
+  status            PostStatus @default(SCHEDULED)
+  attemptCount      Int      @default(0)
+  lastAttemptAt     DateTime?
+  nextRetryAt       DateTime?
+  failureReason     String?
+  failureDetails    Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  post              Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  organization      Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  socialAccount     SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([socialAccountId])
+  @@index([status, scheduledFor])
+  @@index([scheduledFor])
+}
+
+model PostAnalytics {
+  id              String   @id @default(cuid())
+  postId          String
+  organizationId  String
+  platform        SocialPlatform
+  externalPostId  String
+  
+  // Metrics
+  likes           Int      @default(0)
+  comments        Int      @default(0)
+  shares          Int      @default(0)
+  reach           Int      @default(0)
+  impressions     Int      @default(0)
+  engagementRate  Float?
+  
+  // Sync tracking
+  syncedAt        DateTime @default(now())
+  nextSyncAt      DateTime
+  
+  // Relations
+  post            Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, syncedAt])
+  @@index([postId])
+  @@index([organizationId])
+  @@index([platform])
+  @@index([syncedAt])
+  @@index([nextSyncAt])
+}
+
+model Subscription {
+  id              String             @id @default(cuid())
+  organizationId  String             @unique
+  plan            SubscriptionPlan   @default(FREE)
+  status          SubscriptionStatus @default(TRIALING)
+  
+  // Stripe
+  stripeCustomerId    String?
+  stripeSubscriptionId String?
+  stripePriceId        String?
+  
+  // Usage limits
+  aiGenerationsLimit   Int
+  aiGenerationsUsed   Int      @default(0)
+  scheduledPostsLimit Int
+  scheduledPostsUsed  Int      @default(0)
+  connectedAccountsLimit Int
+  connectedAccountsUsed  Int   @default(0)
+  
+  // Billing
+  currentPeriodStart   DateTime?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([stripeSubscriptionId])
+ @@index([status])
+}
+
+model Notification {
+  id              String             @id @default(cuid())
+  userId          String
+  organizationId  String?
+  type            NotificationType
+  title           String
+  message         String             @db.Text
+  status          NotificationStatus @default(PENDING)
+  metadata        Json?
+  readAt          DateTime?
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  expiresAt       DateTime?
+  createdAt       DateTime           @default(now())
+
+  // Relations
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model BackgroundJobRecord {
+  id              String     @id @default(cuid())
+  jobType         String
+  jobId           String     @unique
+  organizationId  String?
+  status          JobStatus  @default(PENDING)
+  input           Json?
+  output          Json?
+  error           String?
+  errorDetails    Json?
+  attemptCount    Int        @default(0)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  nextRetryAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@index([jobType])
+  @@index([organizationId])
+  @@index([status])
+  @@index([jobId])
+  @@index([nextRetryAt])
+}
+
+model DeletionRequest {
+  id              String        @id @default(cuid())
+  organizationId  String        @unique
+  status          DeletionStatus @default(PENDING)
+  requestedAt     DateTime      @default(now())
+  gracePeriodEnds DateTime
+  completedAt     DateTime?
+  metadata        Json?
+
+  // Relations
+  organization    Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([gracePeriodEnds])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  usedAt    DateTime?
+
+  @@index([userId])
+  @@index([token])
+}
+
+model IdempotencyKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  result    Json
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([key])
+  @@index([expiresAt])
+}

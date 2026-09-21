@@ -34,10 +34,10 @@ export function Footer() {
       <div className="footer-bottom">
         <span>© 2026 Poste. All rights reserved.</span>
         <div className="footer-socials">
-          <a href="#top" aria-label="Poste community"><AtSign size={15} /></a>
-          <a href="#top" aria-label="Poste photo feed"><Camera size={15} /></a>
-          <a href="#top" aria-label="Poste professional network"><BriefcaseBusiness size={15} /></a>
-          <a href="#top" aria-label="Poste video feed"><PlayCircle size={15} /></a>
+          <Link href="#top" aria-label="Poste community"><AtSign size={15} /></Link>
+          <Link href="#top" aria-label="Poste photo feed"><Camera size={15} /></Link>
+          <Link href="#top" aria-label="Poste professional network"><BriefcaseBusiness size={15} /></Link>
+          <Link href="#top" aria-label="Poste video feed"><PlayCircle size={15} /></Link>
         </div>
         <div className="footer-settings">
           <span><Globe2 size={13} /> English</span>
@@ -50,6 +50,6 @@ export function Footer() {
 
 // Renders one grouped set of footer navigation links.
 function FooterGroup({ title, links }: { title: string; links: string[][] }) {
-  return <div className="footer-links-group"><h3>{title}</h3>{links.map(([label, href]) => <a href={href} key={label}>{label}</a>)}</div>;
+  return <div className="footer-links-group"><h3>{title}</h3>{links.map(([label, href]) => <Link href={href} key={label}>{label}</Link>)}</div>;
 }
 
