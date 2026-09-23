@@ -11,7 +11,10 @@ export class TwitterProvider implements SocialPlatformProvider {
   constructor() {
     this.clientId = process.env.TWITTER_CLIENT_ID || "";
     this.clientSecret = process.env.TWITTER_CLIENT_SECRET || "";
-    this.redirectUri = process.env.TWITTER_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL}/api/oauth/twitter/callback`;
+    this.redirectUri =
+      process.env.TWITTER_CALLBACK_URL ||
+      process.env.TWITTER_REDIRECT_URI ||
+      `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/oauth/twitter/callback`;
   }
 
   getPlatformType(): SocialPlatform {

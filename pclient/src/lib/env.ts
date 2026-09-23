@@ -23,6 +23,25 @@ const envSchema = z.object({
   TWITTER_CLIENT_SECRET: z.string().optional(),
   TWITTER_CALLBACK_URL: z.string().url().optional(),
 
+  // Social Platform OAuth (Facebook)
+  FACEBOOK_APP_ID: z.string().optional(),
+  FACEBOOK_APP_SECRET: z.string().optional(),
+  FACEBOOK_REDIRECT_URI: z.string().url().optional(),
+
+  // Social Platform OAuth (Instagram, LinkedIn, TikTok, Snapchat)
+  INSTAGRAM_CLIENT_ID: z.string().optional(),
+  INSTAGRAM_CLIENT_SECRET: z.string().optional(),
+  INSTAGRAM_REDIRECT_URI: z.string().url().optional(),
+  LINKEDIN_CLIENT_ID: z.string().optional(),
+  LINKEDIN_CLIENT_SECRET: z.string().optional(),
+  LINKEDIN_REDIRECT_URI: z.string().url().optional(),
+  TIKTOK_CLIENT_KEY: z.string().optional(),
+  TIKTOK_CLIENT_SECRET: z.string().optional(),
+  TIKTOK_REDIRECT_URI: z.string().url().optional(),
+  SNAPCHAT_CLIENT_ID: z.string().optional(),
+  SNAPCHAT_CLIENT_SECRET: z.string().optional(),
+  SNAPCHAT_REDIRECT_URI: z.string().url().optional(),
+
   // Media Storage (Cloudinary)
   CLOUDINARY_CLOUD_NAME: z.string().min(1),
   CLOUDINARY_API_KEY: z.string().min(1),
@@ -75,6 +94,21 @@ try {
     TWITTER_CLIENT_ID: process.env.TWITTER_CLIENT_ID,
     TWITTER_CLIENT_SECRET: process.env.TWITTER_CLIENT_SECRET,
     TWITTER_CALLBACK_URL: process.env.TWITTER_CALLBACK_URL,
+    FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID,
+    FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
+    FACEBOOK_REDIRECT_URI: process.env.FACEBOOK_REDIRECT_URI,
+    INSTAGRAM_CLIENT_ID: process.env.INSTAGRAM_CLIENT_ID,
+    INSTAGRAM_CLIENT_SECRET: process.env.INSTAGRAM_CLIENT_SECRET,
+    INSTAGRAM_REDIRECT_URI: process.env.INSTAGRAM_REDIRECT_URI,
+    LINKEDIN_CLIENT_ID: process.env.LINKEDIN_CLIENT_ID,
+    LINKEDIN_CLIENT_SECRET: process.env.LINKEDIN_CLIENT_SECRET,
+    LINKEDIN_REDIRECT_URI: process.env.LINKEDIN_REDIRECT_URI,
+    TIKTOK_CLIENT_KEY: process.env.TIKTOK_CLIENT_KEY,
+    TIKTOK_CLIENT_SECRET: process.env.TIKTOK_CLIENT_SECRET,
+    TIKTOK_REDIRECT_URI: process.env.TIKTOK_REDIRECT_URI,
+    SNAPCHAT_CLIENT_ID: process.env.SNAPCHAT_CLIENT_ID,
+    SNAPCHAT_CLIENT_SECRET: process.env.SNAPCHAT_CLIENT_SECRET,
+    SNAPCHAT_REDIRECT_URI: process.env.SNAPCHAT_REDIRECT_URI,
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
     CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
     CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
@@ -98,7 +132,7 @@ try {
   });
 } catch (error) {
   if (error instanceof z.ZodError) {
-    const missingVars = error.errors
+    const missingVars = error.issues
       .map((e) => `${e.path.join(".")}: ${e.message}`)
       .join("\n");
     throw new Error(
