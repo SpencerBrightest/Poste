@@ -4,6 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getCurrentUser, getOrganization, incrementQuotaUsage } from "@/lib/permissions";
 import { getOAuthProvider, type OAuthPlatform } from "@/lib/social/oauth";
+import { getInstagramProvider } from "@/lib/social/instagram";
+import { getLinkedInProvider } from "@/lib/social/linkedin";
+import { getSnapchatProvider } from "@/lib/social/snapchat";
+import { getTikTokProvider } from "@/lib/social/tiktok";
 import { logger } from "@/lib/logger";
 
 function stateCookieName(platform: OAuthPlatform) {
@@ -12,6 +16,14 @@ function stateCookieName(platform: OAuthPlatform) {
 
 function callbackPath(platform: OAuthPlatform) {
   return `/api/oauth/${platform}/callback`;
+}
+
+function getRouteProvider(platform: OAuthPlatform) {
+  if (platform === "instagram") return getInstagramProvider();
+  if (platform === "linkedin") return getLinkedInProvider();
+  if (platform === "tiktok") return getTikTokProvider();
+  if (platform === "snapchat") return getSnapchatProvider();
+  return getOAuthProvider(platform);
 }
 
 export async function startOAuth(platform: OAuthPlatform) {
@@ -24,7 +36,7 @@ export async function startOAuth(platform: OAuthPlatform) {
     if (!organization) return NextResponse.json({ error: "No organization found" }, { status: 400 });
 
     const state = crypto.randomBytes(32).toString("hex");
-    const authUrl = await getOAuthProvider(platform).getAuthorizationUrl(state);
+    const authUrl = await getRouteProvider(platform).getAuthorizationUrl(state);
     const response = NextResponse.json({ authUrl });
     response.cookies.set(stateCookieName(platform), state, {
       httpOnly: true,
@@ -70,7 +82,7 @@ export async function completeOAuth(platform: OAuthPlatform, request: NextReques
     const { organization } = await getOrganization();
     if (!organization) return NextResponse.redirect(new URL("/onboarding", request.url));
 
-    const provider = getOAuthProvider(platform);
+    const provider = getRouteProvider(platform);
     const tokenResponse = await provider.handleOAuthCallback(code, state);
     const accountInfo = await provider.getAccount(tokenResponse.accessToken);
     const socialPlatform = provider.getPlatformType();
