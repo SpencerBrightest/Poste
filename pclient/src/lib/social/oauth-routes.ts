@@ -19,9 +19,9 @@ function verifierCookieName(platform: OAuthPlatform) {
   return `${platform}_oauth_verifier`;
 }
 
-function callbackPath(platform: OAuthPlatform) {
-  return `/api/oauth/${platform}/callback`;
-}
+// OAuth cookies are set on /connect and read on /callback, so they use the
+// root path to guarantee the browser sends them to both routes.
+const oauthCookiePath = "/";
 
 function getRouteProvider(platform: OAuthPlatform) {
   if (platform === "instagram") return getInstagramProvider();
@@ -56,7 +56,7 @@ export async function startOAuth(platform: OAuthPlatform) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 600,
-      path: callbackPath(platform),
+      path: oauthCookiePath,
     });
     if (platform === "twitter" && codeVerifier) {
       response.cookies.set(verifierCookieName(platform), codeVerifier, {
@@ -64,7 +64,7 @@ export async function startOAuth(platform: OAuthPlatform) {
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 600,
-        path: callbackPath(platform),
+        path: oauthCookiePath,
       });
     }
 
@@ -113,6 +113,13 @@ export async function completeOAuth(platform: OAuthPlatform, request: NextReques
     const tokenResponse = await provider.handleOAuthCallback(code, state, codeVerifier);
     const accountInfo = await provider.getAccount(tokenResponse.accessToken);
     const socialPlatform = provider.getPlatformType();
+    // Persist token expiry when the provider reports it, so background jobs
+    // can refresh before the token dies instead of failing at publish time.
+    // Prisma ignores `undefined`, so providers without expiry keep prior values.
+    const tokenExpiresAt =
+      typeof tokenResponse.expiresIn === "number"
+        ? new Date(Date.now() + tokenResponse.expiresIn * 1000)
+        : undefined;
     const existingAccount = await prisma.socialAccount.findUnique({
       where: {
         organizationId_platform_platformAccountId: {
@@ -129,6 +136,7 @@ export async function completeOAuth(platform: OAuthPlatform, request: NextReques
         data: {
           accessToken: tokenResponse.accessToken,
           refreshToken: tokenResponse.refreshToken,
+          tokenExpiresAt,
           status: "ACTIVE",
           lastSyncedAt: new Date(),
         },
@@ -147,6 +155,7 @@ export async function completeOAuth(platform: OAuthPlatform, request: NextReques
           displayName: accountInfo.displayName,
           accessToken: tokenResponse.accessToken,
           refreshToken: tokenResponse.refreshToken,
+          tokenExpiresAt,
           status: "ACTIVE",
           lastSyncedAt: new Date(),
         },
@@ -166,7 +175,7 @@ export async function completeOAuth(platform: OAuthPlatform, request: NextReques
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 0,
-      path: callbackPath(platform),
+      path: oauthCookiePath,
     });
     if (platform === "twitter") {
       response.cookies.set(verifierCookieName(platform), "", {
@@ -174,7 +183,7 @@ export async function completeOAuth(platform: OAuthPlatform, request: NextReques
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
         maxAge: 0,
-        path: callbackPath(platform),
+        path: oauthCookiePath,
       });
     }
     return response;

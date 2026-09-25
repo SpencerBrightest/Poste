@@ -22,6 +22,7 @@ const envSchema = z.object({
   TWITTER_CLIENT_ID: z.string().optional(),
   TWITTER_CLIENT_SECRET: z.string().optional(),
   TWITTER_CALLBACK_URL: z.string().url().optional(),
+  TWITTER_REDIRECT_URI: z.string().url().optional(),
 
   // Social Platform OAuth (Facebook)
   FACEBOOK_APP_ID: z.string().optional(),
@@ -94,6 +95,7 @@ try {
     TWITTER_CLIENT_ID: process.env.TWITTER_CLIENT_ID,
     TWITTER_CLIENT_SECRET: process.env.TWITTER_CLIENT_SECRET,
     TWITTER_CALLBACK_URL: process.env.TWITTER_CALLBACK_URL,
+    TWITTER_REDIRECT_URI: process.env.TWITTER_REDIRECT_URI,
     FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID,
     FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET,
     FACEBOOK_REDIRECT_URI: process.env.FACEBOOK_REDIRECT_URI,
