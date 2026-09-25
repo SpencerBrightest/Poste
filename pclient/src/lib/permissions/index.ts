@@ -8,13 +8,14 @@ import { UnauthorizedError, ForbiddenError, NotFoundError } from "@/lib/errors";
  */
 export async function getCurrentUser() {
   const session = await auth();
-  
-  if (!session?.userId) {
+  const userId = session?.userId;
+
+  if (!userId) {
     throw new UnauthorizedError();
   }
 
   const existingUser = await prisma.user.findUnique({
-    where: { clerkUserId: session.userId },
+    where: { clerkUserId: userId },
     include: { organization: true },
   });
 
@@ -23,7 +24,7 @@ export async function getCurrentUser() {
   }
 
   const clerk = await clerkClient();
-  const clerkUser = await clerk.users.getUser(session.userId);
+  const clerkUser = await clerk.users.getUser(userId);
   const email = clerkUser.emailAddresses.find(
     (address) => address.id === clerkUser.primaryEmailAddressId
   )?.emailAddress ?? clerkUser.emailAddresses[0]?.emailAddress;
@@ -33,10 +34,10 @@ export async function getCurrentUser() {
   }
 
   const user = await prisma.user.upsert({
-    where: { clerkUserId: session.userId },
+    where: { clerkUserId: userId },
     update: { email },
     create: {
-      clerkUserId: session.userId,
+      clerkUserId: userId,
       email,
       role: UserRole.USER,
     },

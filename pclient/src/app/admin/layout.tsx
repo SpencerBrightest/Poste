@@ -9,14 +9,15 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  
-  if (!session?.userId) {
+  const userId = session?.userId;
+
+  if (!userId) {
     redirect("/sign-in");
   }
 
   // Check if user is admin
   const user = await prisma.user.findUnique({
-    where: { clerkUserId: session.userId },
+    where: { clerkUserId: userId },
   });
 
   if (!user || user.role !== "ADMIN") {
