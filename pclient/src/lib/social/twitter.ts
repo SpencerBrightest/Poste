@@ -2,6 +2,7 @@ import { SocialPlatform } from "@prisma/client";
 import type { SocialPlatformProvider, OAuthTokenResponse, SocialAccountInfo, PublishResult, PublicationStatus, PostMetrics } from "./types";
 import { logger } from "@/lib/logger";
 import { encrypt, decrypt } from "@/lib/encryption";
+import { codeChallengeFromVerifier, generateCodeVerifier } from "./pkce";
 
 export class TwitterProvider implements SocialPlatformProvider {
   private clientId: string;
@@ -29,33 +30,41 @@ export class TwitterProvider implements SocialPlatformProvider {
     return ["IMAGE", "VIDEO"];
   }
 
-  async getAuthorizationUrl(state: string): Promise<string> {
+  async getAuthorizationUrl(state: string, codeChallenge?: string): Promise<string> {
+    // S256 PKCE: the caller (oauth-routes) generates the verifier, stores it in
+    // an httpOnly cookie, and passes the derived challenge here. Fall back to a
+    // fresh pair only for direct callers that manage the verifier themselves.
+    const challenge = codeChallenge ?? codeChallengeFromVerifier(generateCodeVerifier());
     const params = new URLSearchParams({
       response_type: "code",
       client_id: this.clientId,
       redirect_uri: this.redirectUri,
       scope: "tweet.read tweet.write users.read offline.access",
       state,
-      code_challenge: this.generateCodeChallenge(),
-      code_challenge_method: "plain",
+      code_challenge: challenge,
+      code_challenge_method: "S256",
     });
 
     return `https://twitter.com/i/oauth2/authorize?${params.toString()}`;
   }
 
-  async handleOAuthCallback(code: string, state: string): Promise<OAuthTokenResponse> {
+  async handleOAuthCallback(code: string, state: string, codeVerifier?: string): Promise<OAuthTokenResponse> {
+    if (!codeVerifier) {
+      throw new Error("Missing PKCE code_verifier for Twitter OAuth callback");
+    }
     try {
       const response = await fetch("https://api.twitter.com/2/oauth2/token", {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString("base64")}`,
         },
         body: new URLSearchParams({
           code,
           grant_type: "authorization_code",
           client_id: this.clientId,
           redirect_uri: this.redirectUri,
-          code_verifier: this.generateCodeChallenge(),
+          code_verifier: codeVerifier,
         }),
       });
 
@@ -282,10 +291,6 @@ export class TwitterProvider implements SocialPlatformProvider {
       logger.error("Failed to fetch post metrics", error);
       throw new Error("Failed to fetch post metrics");
     }
-  }
-
-  private generateCodeChallenge(): string {
-    return Math.random().toString(36).substring(2);
   }
 }
 

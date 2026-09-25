@@ -39,14 +39,18 @@ export interface PostMetrics {
 
 export interface SocialPlatformProvider {
   /**
-   * Get the OAuth authorization URL
+   * Get the OAuth authorization URL.
+   * The optional codeChallenge carries the PKCE S256 challenge for providers
+   * (Twitter/X) that require it; other providers ignore it.
    */
-  getAuthorizationUrl(state: string): Promise<string>;
+  getAuthorizationUrl(state: string, codeChallenge?: string): Promise<string>;
 
   /**
-   * Handle OAuth callback and exchange code for tokens
+   * Handle OAuth callback and exchange code for tokens.
+   * The optional codeVerifier carries the PKCE verifier for providers
+   * (Twitter/X) that require it; other providers ignore it.
    */
-  handleOAuthCallback(code: string, state: string): Promise<OAuthTokenResponse>;
+  handleOAuthCallback(code: string, state: string, codeVerifier?: string): Promise<OAuthTokenResponse>;
 
   /**
    * Refresh an expired access token

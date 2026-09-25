@@ -8,10 +8,15 @@ import { getInstagramProvider } from "@/lib/social/instagram";
 import { getLinkedInProvider } from "@/lib/social/linkedin";
 import { getSnapchatProvider } from "@/lib/social/snapchat";
 import { getTikTokProvider } from "@/lib/social/tiktok";
+import { codeChallengeFromVerifier, generateCodeVerifier } from "@/lib/social/pkce";
 import { logger } from "@/lib/logger";
 
 function stateCookieName(platform: OAuthPlatform) {
   return `${platform}_oauth_state`;
+}
+
+function verifierCookieName(platform: OAuthPlatform) {
+  return `${platform}_oauth_verifier`;
 }
 
 function callbackPath(platform: OAuthPlatform) {
@@ -36,7 +41,15 @@ export async function startOAuth(platform: OAuthPlatform) {
     if (!organization) return NextResponse.json({ error: "No organization found" }, { status: 400 });
 
     const state = crypto.randomBytes(32).toString("hex");
-    const authUrl = await getRouteProvider(platform).getAuthorizationUrl(state);
+    // Twitter/X requires S256 PKCE: generate the verifier here, persist it in
+    // an httpOnly cookie, and send only the derived challenge to X.
+    let codeChallenge: string | undefined;
+    let codeVerifier: string | undefined;
+    if (platform === "twitter") {
+      codeVerifier = generateCodeVerifier();
+      codeChallenge = codeChallengeFromVerifier(codeVerifier);
+    }
+    const authUrl = await getRouteProvider(platform).getAuthorizationUrl(state, codeChallenge);
     const response = NextResponse.json({ authUrl });
     response.cookies.set(stateCookieName(platform), state, {
       httpOnly: true,
@@ -45,6 +58,15 @@ export async function startOAuth(platform: OAuthPlatform) {
       maxAge: 600,
       path: callbackPath(platform),
     });
+    if (platform === "twitter" && codeVerifier) {
+      response.cookies.set(verifierCookieName(platform), codeVerifier, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 600,
+        path: callbackPath(platform),
+      });
+    }
 
     logger.info("OAuth initiated", { organizationId: organization.id, platform });
     return response;
@@ -83,7 +105,12 @@ export async function completeOAuth(platform: OAuthPlatform, request: NextReques
     if (!organization) return NextResponse.redirect(new URL("/onboarding", request.url));
 
     const provider = getRouteProvider(platform);
-    const tokenResponse = await provider.handleOAuthCallback(code, state);
+    const codeVerifier =
+      platform === "twitter" ? request.cookies.get(verifierCookieName(platform))?.value : undefined;
+    if (platform === "twitter" && !codeVerifier) {
+      return redirectToEditor("oauth_state_mismatch");
+    }
+    const tokenResponse = await provider.handleOAuthCallback(code, state, codeVerifier);
     const accountInfo = await provider.getAccount(tokenResponse.accessToken);
     const socialPlatform = provider.getPlatformType();
     const existingAccount = await prisma.socialAccount.findUnique({
@@ -141,6 +168,15 @@ export async function completeOAuth(platform: OAuthPlatform, request: NextReques
       maxAge: 0,
       path: callbackPath(platform),
     });
+    if (platform === "twitter") {
+      response.cookies.set(verifierCookieName(platform), "", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 0,
+        path: callbackPath(platform),
+      });
+    }
     return response;
   } catch (error) {
     logger.error("OAuth callback failed", { platform, error });
