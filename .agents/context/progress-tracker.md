@@ -28,12 +28,17 @@ Update this file whenever the current phase, active feature, or implementation s
 - Dedicated protected editor workspaces implemented for scheduling, analytics, AI advisor, referrals, billing, settings, sponsorship, mails, and collaboration, with shared search, tabs, metrics, activity, and action controls.
 - Workspace navigation and content-studio internal links use client-side routes, while each destination now has its own interaction model instead of a shared generic section page.
 - Phase 0 architecture decision record added: `pclient` is the system of record, Clerk organization membership is authoritative, X/Twitter is the MVP social provider, provider contracts are explicit, and jobs/tests have defined contracts.
+- OAuth Phase 1: Twitter/X PKCE fixed to S256 — verifier generated in `startOAuth`, stored in httpOnly cookie, challenge sent to X, verifier used at token exchange with Basic client auth (`pclient/src/lib/social/pkce.ts`, `twitter.ts`, `oauth-routes.ts`).
+- OAuth Phase 2: TikTok provider implemented — `client_key` token exchange and nested `{data:{user}}` account parsing with `error.code:"ok"` success handling (`pclient/src/lib/social/tiktok.ts`).
+- OAuth Phase 3: Instagram provider implemented via Facebook Page flow — code exchange, `/me/accounts` lookup for linked IG Business ID, IG profile fetch (`pclient/src/lib/social/instagram.ts`).
+- OAuth Phase 4: Snapchat provider implemented — Basic-auth token exchange and dual-shape (Login Kit / Ads API) account parsing (`pclient/src/lib/social/snapchat.ts`).
+- OAuth Phase 5: shared hardening — OAuth cookies use root path, `tokenExpiresAt` persisted from `expiresIn` on connect/reconnect, `TWITTER_REDIRECT_URI` added to env schema (`oauth-routes.ts`, `env.ts`).
 
 ## In Progress
 
-- Landing page implementation is complete; the public route now composes the reusable landing components directly instead of embedding invalid document-level HTML and CDN scripts in `src/app/page.tsx`.
-- Clerk integration and the first protected editor dashboard are implemented and build-validated; the remaining auth work is connecting Clerk's dashboard configuration and verifying the hosted sign-in/sign-up flows with the project's deployment environment.
-- Phase 0 is complete; Phase 1 foundation is next.
+- OAuth providers for all 6 platforms (twitter, facebook, instagram, tiktok, linkedin, snapchat) are implemented and type-clean; remaining OAuth work is live verification against real dev apps (redirect URIs, scopes, App Review) — start with Twitter + Facebook.
+- Pre-existing type errors in `pclient/src/lib/actions/deletion.ts`, `posts.ts`, and `inngest/functions.ts` (SendEventPayload / inngest signatures) are untouched and still open.
+- Known follow-ups: long-lived Facebook/Instagram token exchange, TikTok refresh flow, Snapchat publishing limits (no public organic-post API), provider-specific `metadata` on SocialAccount.
 
 ## Next Up
 
