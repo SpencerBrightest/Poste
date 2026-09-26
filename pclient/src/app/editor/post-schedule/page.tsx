@@ -45,21 +45,21 @@ export default async function PostSchedulePage() {
   }, {} as Record<string, typeof scheduledPosts>);
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-10 lg:py-10">
+    <main className="min-h-screen bg-background px-4 py-6 text-foreground sm:px-6 lg:px-10 lg:py-10">
       <div className="mx-auto w-full max-w-7xl">
         <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400"><Sparkles className="h-3.5 w-3.5" /> Publishing workspace</p>
-            <h1 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-4xl">Post schedule</h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Keep your next publishing moments visible and intentional.</p>
+            <p className="mb-2 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary"><Sparkles className="h-3.5 w-3.5" /> Publishing workspace</p>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Post schedule</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Keep your next publishing moments visible and intentional.</p>
           </div>
-          <button type="button" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-400">
+          <button type="button" className="inline-flex h-11 items-center justify-center gap-2 rounded-sm bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover active:bg-primary-active">
             <Plus className="h-4 w-4" /> Schedule post
           </button>
         </div>
-        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm shadow-sm dark:border-slate-800 dark:bg-slate-900">
-          <span className="inline-flex items-center gap-2 font-semibold text-slate-800 dark:text-slate-200"><CalendarDays className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Scheduled content</span>
-          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">{scheduledPosts.length} upcoming</span>
+        <div className="mb-5 flex flex-wrap items-center gap-3 rounded-md border border-border bg-card px-4 py-3 text-sm">
+          <span className="inline-flex items-center gap-2 font-semibold text-foreground"><CalendarDays className="h-4 w-4 text-primary" /> Scheduled content</span>
+          <span className="rounded-sm bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{scheduledPosts.length} upcoming</span>
         </div>
         <CalendarView postsByDate={postsByDate} />
       </div>
