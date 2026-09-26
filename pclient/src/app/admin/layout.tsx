@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/landing/ThemeToggle";
 
 export default async function AdminLayout({
   children,
@@ -9,14 +10,15 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  
-  if (!session?.userId) {
+  const userId = session?.userId;
+
+  if (!userId) {
     redirect("/sign-in");
   }
 
   // Check if user is admin
   const user = await prisma.user.findUnique({
-    where: { clerkUserId: session.userId },
+    where: { clerkUserId: userId },
   });
 
   if (!user || user.role !== "ADMIN") {
@@ -32,6 +34,9 @@ export default async function AdminLayout({
           <Link href="/admin/subscriptions">Subscriptions</Link>
           <Link href="/admin/jobs">Failed Jobs</Link>
         </nav>
+        <div style={{ marginTop: 16 }}>
+          <ThemeToggle />
+        </div>
       </div>
       <div className="admin-main">
         {children}

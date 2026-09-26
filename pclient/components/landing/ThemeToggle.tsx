@@ -1,16 +1,24 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
-import { useState } from "react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
-// Toggles the marketing page between Poste's dark and light visual themes.
+// Toggles the whole site between Poste's dark and light visual themes.
+// Defaults to the device system theme; the choice persists via next-themes
+// (localStorage key "poste-theme") so every page stays in sync.
 export function ThemeToggle() {
-  const [isLight, setIsLight] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isLight = mounted ? resolvedTheme === "light" : false;
 
   function toggleTheme() {
-    const nextThemeIsLight = !isLight;
-    setIsLight(nextThemeIsLight);
-    document.documentElement.dataset.theme = nextThemeIsLight ? "light" : "dark";
+    setTheme(isLight ? "dark" : "light");
   }
 
   return (
@@ -20,6 +28,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={isLight ? "Switch to dark theme" : "Switch to light theme"}
       title={isLight ? "Switch to dark theme" : "Switch to light theme"}
+      suppressHydrationWarning
     >
       {isLight ? <Moon size={17} strokeWidth={1.8} /> : <Sun size={17} strokeWidth={1.8} />}
     </button>

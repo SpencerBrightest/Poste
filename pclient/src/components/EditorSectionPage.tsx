@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, Calendar, Check, ChevronDown, Lightbulb, Mail, Plus, Search, Sparkles, TrendingUp, Users, Wallet } from "lucide-react";
+import { ThemeToggle } from "@/components/landing/ThemeToggle";
 
 interface EditorSectionPageProps {
   title: string;
@@ -46,7 +47,10 @@ export default function EditorSectionPage({ title, description, icon }: EditorSe
     <main className="section-page-shell">
       <header className="section-page-topbar">
         <Link className="dashboard-brand" href="/editor"><span className="dashboard-logo"><Sparkles size={15} /></span><span>Poste.</span></Link>
-        <Link className="section-back-link" href="/editor"><ArrowLeft size={15} />Back to overview</Link>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <Link className="section-back-link" href="/editor"><ArrowLeft size={15} />Back to overview</Link>
+          <ThemeToggle />
+        </div>
       </header>
       <div className="section-page-content">
         <div className="section-page-heading"><div className="section-page-icon"><Icon size={22} /></div><div><p className="dashboard-kicker">Editor workspace</p><h1>{title}</h1><p>{description}</p></div></div>

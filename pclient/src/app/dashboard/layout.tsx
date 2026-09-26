@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/landing/ThemeToggle";
 
 export default async function DashboardLayout({
   children,
@@ -26,6 +27,9 @@ export default async function DashboardLayout({
           <Link href="/dashboard/billing">Billing</Link>
           <Link href="/dashboard/settings">Settings</Link>
         </nav>
+        <div style={{ marginTop: 16 }}>
+          <ThemeToggle />
+        </div>
       </div>
       <div className="dashboard-main">
         {children}

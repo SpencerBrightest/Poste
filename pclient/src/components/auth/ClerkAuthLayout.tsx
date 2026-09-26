@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { ThemeToggle } from "@/components/landing/ThemeToggle";
 
 interface ClerkAuthLayoutProps {
   children: ReactNode;
@@ -50,6 +51,7 @@ export function ClerkAuthLayout({ children, mode }: ClerkAuthLayoutProps) {
       <section className="clerk-auth-main" aria-label={mode === "sign-in" ? "Sign in" : "Sign up"}>
         <div className="clerk-auth-toolbar">
           <Link className="clerk-auth-home-link" href="/sign-in">Back to sign in</Link>
+          <ThemeToggle />
         </div>
         <div className="clerk-auth-form-wrap">{children}</div>
       </section>

@@ -75,26 +75,26 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 sm:py-12">
+    <main className="onboarding-shell min-h-screen px-4 py-8 sm:px-6 sm:py-12">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-8 lg:grid-cols-[0.85fr_1.15fr]">
-        <section className="hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-emerald-600 p-8 text-white shadow-xl shadow-blue-900/10 lg:block lg:p-10">
+        <section className="onboarding-visual-panel hidden rounded-md p-8 lg:block lg:p-10">
           <div className="mb-16 flex items-center gap-3 text-sm font-bold tracking-tight">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15">P</span>
             Poste
           </div>
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-blue-50">
+            <p className="mb-4 inline-flex items-center gap-2 rounded-sm border border-border-strong bg-surface/80 px-3 py-1.5 text-xs font-semibold text-text-soft">
             <Sparkles className="h-3.5 w-3.5" /> A calmer way to publish
           </p>
           <h1 className="max-w-md text-4xl font-bold leading-tight tracking-tight">
             Give your content a home.
           </h1>
-          <p className="mt-5 max-w-md text-sm leading-7 text-blue-100">
+          <p className="mt-5 max-w-md text-sm leading-7 text-text-soft">
             Set up your workspace once, then move from ideas to scheduled posts with a clear rhythm.
           </p>
-          <ul className="mt-10 grid gap-4 text-sm text-blue-50">
+          <ul className="mt-10 grid gap-4 text-sm text-text-soft">
             {['Plan your publishing rhythm', 'Keep your social work in one place', 'Learn what resonates with your audience'].map((item) => (
               <li key={item} className="flex items-center gap-3">
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-emerald-400/25 text-emerald-100">
+                <span className="grid h-6 w-6 place-items-center rounded-full bg-success/15 text-success">
                   <Check className="h-3.5 w-3.5" />
                 </span>
                 {item}
@@ -103,7 +103,7 @@ export default async function OnboardingPage() {
           </ul>
         </section>
 
-        <section className="mx-auto w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900 sm:p-10">
+        <section className="mx-auto w-full max-w-xl rounded-md border border-border bg-card p-6 text-card-foreground sm:p-10">
           <div className="mb-8 lg:hidden">
             <div className="flex items-center gap-3 text-sm font-bold tracking-tight">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-blue-600 text-white">P</span>
@@ -111,14 +111,14 @@ export default async function OnboardingPage() {
             </div>
           </div>
           <div className="mb-8">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">Workspace setup</p>
-            <h2 className="text-3xl font-bold tracking-tight text-slate-950 dark:text-white">Welcome to Poste</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-400">Create a workspace for your content, channels, and publishing schedule.</p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-primary">Workspace setup</p>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Welcome to Poste</h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">Create a workspace for your content, channels, and publishing schedule.</p>
           </div>
 
           <form action={createOrganization} className="grid gap-5">
             <div className="grid gap-2">
-              <label htmlFor="name" className="text-sm font-semibold text-slate-800 dark:text-slate-200">Workspace name</label>
+              <label htmlFor="name" className="text-sm font-semibold text-text-soft">Workspace name</label>
             <input
               id="name"
               name="name"
@@ -127,12 +127,12 @@ export default async function OnboardingPage() {
               required
               minLength={2}
               maxLength={100}
-                className="h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-600 dark:focus:border-blue-400 dark:focus:bg-slate-900"
+                className="h-12 rounded-sm border border-border-strong bg-surface-soft px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/20"
             />
             </div>
 
             <div className="grid gap-2">
-              <label htmlFor="slug" className="text-sm font-semibold text-slate-800 dark:text-slate-200">Workspace slug</label>
+              <label htmlFor="slug" className="text-sm font-semibold text-text-soft">Workspace slug</label>
             <input
               id="slug"
               name="slug"
@@ -142,12 +142,12 @@ export default async function OnboardingPage() {
               pattern="[a-z0-9-]+"
               minLength={2}
               maxLength={50}
-              className="h-12 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-600 dark:focus:border-blue-400 dark:focus:bg-slate-900"
+              className="h-12 rounded-sm border border-border-strong bg-surface-soft px-4 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:bg-surface focus:ring-2 focus:ring-primary/20"
             />
-              <p className="text-xs text-slate-500 dark:text-slate-500">Lowercase letters, numbers, and hyphens only.</p>
+              <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and hyphens only.</p>
             </div>
 
-            <button type="submit" className="mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 dark:bg-blue-500 dark:hover:bg-blue-400">
+            <button type="submit" className="mt-2 inline-flex h-12 items-center justify-center gap-2 rounded-sm bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover active:bg-primary-active focus:outline-none focus:ring-2 focus:ring-primary/30">
               Create workspace <ArrowRight className="h-4 w-4" />
             </button>
           </form>
