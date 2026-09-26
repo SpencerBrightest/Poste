@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { useClerk } from "@clerk/nextjs";
+import { ThemeToggle } from "@/components/landing/ThemeToggle";
 import { usePosts } from "@/lib/hooks/use-posts";
 import { useSocialAccounts } from "@/lib/hooks/use-social-accounts";
 import type { DashboardData } from "@/lib/actions/analytics";
@@ -301,6 +302,7 @@ export default function EditorDashboard({
             </button>
           </div>
           <div className="dashboard-top-actions">
+            <ThemeToggle />
             <button
               className="dashboard-icon-button"
               type="button"
@@ -472,16 +474,16 @@ export default function EditorDashboard({
               <div className="audience-body">
                 <div className="audience-legend">
                   <div>
-                    <span style={{ background: "#69a4ea" }} />
+                    <span className="legend-created" />
                     Created<small>{dashboardData?.totalPosts ?? 0} total</small>
                   </div>
                   <div>
-                    <span style={{ background: "#40bdcc" }} />
+                    <span className="legend-published" />
                     Published
                     <small>{dashboardData?.publishedPosts ?? 0} total</small>
                   </div>
                   <div>
-                    <span style={{ background: "#4e79d3" }} />
+                    <span className="legend-scheduled" />
                     Scheduled
                     <small>{dashboardData?.scheduledPosts ?? 0} total</small>
                   </div>

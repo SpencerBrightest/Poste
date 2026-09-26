@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/landing/ThemeToggle";
 
 export default async function AdminLayout({
   children,
@@ -33,6 +34,9 @@ export default async function AdminLayout({
           <Link href="/admin/subscriptions">Subscriptions</Link>
           <Link href="/admin/jobs">Failed Jobs</Link>
         </nav>
+        <div style={{ marginTop: 16 }}>
+          <ThemeToggle />
+        </div>
       </div>
       <div className="admin-main">
         {children}
