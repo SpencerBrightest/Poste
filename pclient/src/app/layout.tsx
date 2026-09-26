@@ -20,24 +20,24 @@ interface RootLayoutProps {
 // Provides the shared document shell and metadata for the application.
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en">
-      
+    <html lang="en" suppressHydrationWarning>
+
       <body>
         <ClerkProvider
           ui={ui}
           appearance={{
             theme: dark,
             variables: {
-              colorPrimary: "var(--primary-bright)",
+              colorPrimary: "var(--primary)",
               colorPrimaryForeground: "var(--button-primary-fg)",
               colorBackground: "var(--surface)",
               colorForeground: "var(--text)",
               colorInput: "var(--surface-soft)",
               colorInputForeground: "var(--text)",
               colorBorder: "var(--border-strong)",
-              colorRing: "var(--primary-bright)",
-              colorDanger: "var(--coral)",
-              colorSuccess: "var(--secondary)",
+              colorRing: "var(--primary)",
+              colorDanger: "var(--danger)",
+              colorSuccess: "var(--success)",
               colorNeutral: "var(--text-muted)",
             },
           }}
